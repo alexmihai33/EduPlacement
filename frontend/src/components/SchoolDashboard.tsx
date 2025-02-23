@@ -26,7 +26,7 @@ const SchoolDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/table1/user/1'); // Replace with your API endpoint
+        const response = await fetch('https://eduplacement-4.onrender.com/api/table1/user/1'); // Replace with your API endpoint
         if (response.ok) {
           const data = await response.json();
           setData(data); // Store fetched data
@@ -86,7 +86,7 @@ const SchoolDashboard: React.FC = () => {
   // Send PATCH request to update data on the backend
   const handlePatchData = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/table1/user/1', {
+      const response = await fetch('https://eduplacement-4.onrender.com/api/table1/user/1', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,6 @@ const SchoolDashboard: React.FC = () => {
       });
   
       if (response.ok) {
-        alert('Data updated successfully!');
       } else {
         alert('Failed to update data!');
       }
