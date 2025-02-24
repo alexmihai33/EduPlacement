@@ -59,6 +59,7 @@ const SchoolDashboard: React.FC = () => {
           key !== 'id' && (
             <td key={key}>
               <input
+                className='tableInput'
                 type="text"
                 value={row[key] || ''}
                 onChange={(e) => {
