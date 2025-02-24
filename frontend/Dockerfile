@@ -1,6 +1,9 @@
 # Use the official Nginx image
 FROM nginx:alpine
 
+# Copy the custom Nginx config file into the container
+COPY nginx.conf /etc/nginx/nginx.conf
+
 # Copy the build output from your React app into Nginx's public folder
 COPY dist/ /usr/share/nginx/html
 
