@@ -1,14 +1,27 @@
-# Use the official Nginx image
-FROM nginx:alpine
+# Stage 1: Build the React app
+FROM node:22-alpine AS build
 
-# Copy the custom Nginx config file into the container
-COPY nginx.conf /etc/nginx/nginx.conf
+# Set working directory
+WORKDIR /app
 
-# Copy the build output from your React app into Nginx's public folder
-COPY dist/ /usr/share/nginx/html
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install --frozen-lockfile
 
-# Expose port 80 (Nginx's default port)
+# Copy the entire app source code
+COPY . .
+
+# Build the Vite app
+RUN npm run build
+
+# Stage 2: Serve the Vite app using Nginx
+FROM nginx:1.25-alpine
+
+# Copy the built app to the Nginx HTML directory
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose port 80 for the web server
 EXPOSE 80
 
-# Command to run Nginx in the foreground (keeps the container running)
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
