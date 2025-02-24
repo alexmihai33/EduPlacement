@@ -14,14 +14,20 @@ COPY . .
 # Build the Vite app
 RUN npm run build
 
-# Stage 2: Serve the Vite app using Nginx
-FROM nginx:1.25-alpine
+# Stage 2: Serve the Vite app with a Node.js server
+FROM node:20-alpine
 
-# Copy the built app to the Nginx HTML directory
-COPY --from=build /app/dist /usr/share/nginx/html
+# Set working directory
+WORKDIR /app
 
-# Expose port 80 for the web server
-EXPOSE 80
+# Install a lightweight static file server
+RUN npm install -g serve
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Copy the built app
+COPY --from=build /app/dist ./dist
+
+# Expose port 3000 for the server
+EXPOSE 3000
+
+# Serve the app
+CMD ["serve", "-s", "dist", "-l", "3000"]
