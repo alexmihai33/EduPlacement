@@ -1,10 +1,8 @@
 {
-    "public": "dist", 
-    "rewrites": [
-      {
-        "source": "/**",
-        "destination": "/index.html"
-      }
-    ]
+    "public": "./dist", 
+    "clean_urls": true,
+    "routes": {
+      "/**": "index.html"
+    }
   }
   
