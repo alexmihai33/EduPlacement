@@ -3,16 +3,16 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 const Hero = () => {
 
-  const {loginWithRedirect} = useAuth0();
+  const { loginWithRedirect } = useAuth0();
 
   return (
 
 
-    <div>
+    <>
       <div className="container my-5">
         <div className="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">
           <div className="col-lg-7 p-3 p-lg-5 pt-lg-3">
-            <h1 className="display-4 fw-bold lh-1 text-body-emphasis">EduPlacement</h1>
+            <h1 className="display-3 lead fw-bold text-body-emphasis">EduPlacement</h1>
             <p className="lead">Platforma proiectului de incadrare in invatamantul pre-universitar.</p>
             <hr></hr>
             <p className="lead">Pentru cont institutional contactati:</p>
@@ -24,7 +24,7 @@ const Hero = () => {
             </svg> +40783013933</p>
             <hr></hr>
             <p className="lead">Ai deja cont?
-            <button type="button" onClick={()=>loginWithRedirect()} className="btn btn-outline-primary ml-3">Log in</button>
+              <button type="button" onClick={() => loginWithRedirect()} className="btn btn-outline-primary ms-3">Log in</button>
             </p>
           </div>
           <div className="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
@@ -34,7 +34,7 @@ const Hero = () => {
       </div>
 
 
-      <div className="container px-4 py-5" id="featured-3">
+      <div className="container px-4 py-5">
         <h2 className="pb-2 border-bottom">Cu ce sa incepi?</h2>
         <div className="row g-4 py-5 row-cols-1 row-cols-lg-3">
           <div className="feature col">
@@ -48,8 +48,8 @@ const Hero = () => {
             <a href="news" className="icon-link">
               News
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-up-right" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
-</svg>
+                <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z" />
+              </svg>
             </a>
           </div>
           <div className="feature col">
@@ -65,8 +65,8 @@ const Hero = () => {
             <a href="guide" className="icon-link">
               Ghid
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-up-right" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
-</svg>
+                <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z" />
+              </svg>
             </a>
           </div>
           <div className="feature col">
@@ -81,15 +81,15 @@ const Hero = () => {
             <a href="support" className="icon-link">
               Suport
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-up-right" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
-</svg>
+                <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z" />
+              </svg>
             </a>
           </div>
         </div>
       </div>
 
 
-    </div>
+    </>
   );
 };
 
