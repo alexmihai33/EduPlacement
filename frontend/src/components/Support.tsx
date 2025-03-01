@@ -5,7 +5,7 @@ const Support = ()=>{
         <div className="my-5">
         <div className="text-center mb-5">
           <img className="mb-3 app-logo" src={logo} alt="Logo" width="60" />
-          <h1 className="mb-4">Contacteaza support la adresa de email support@support.com</h1>
+          <h1 className="mb-4">Contacteaza support-ul la adresa de email support@support.com</h1>
           <p className="lead">Work in progress...</p>
         </div>
         </div>
