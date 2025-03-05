@@ -1,4 +1,4 @@
-import logo from "../assets/channels4_profile.jpg";
+import logo from "../assets/channels4_profile.png";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const Hero = () => {
@@ -12,7 +12,7 @@ const Hero = () => {
       <div className="container my-5">
         <div className="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">
           <div className="col-lg-7 p-3 p-lg-5 pt-lg-3">
-            <h1 className="display-3 lead fw-bold text-body-emphasis">EduPlacement</h1>
+            <h1 className="display-3 fw-bold text-body-emphasis">EduPlacement</h1>
             <p className="lead">Platforma proiectului de incadrare in invatamantul pre-universitar.</p>
             <hr></hr>
             <p className="lead">Pentru cont institutional contactati:</p>
@@ -28,7 +28,7 @@ const Hero = () => {
             </p>
           </div>
           <div className="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
-            <img src={logo} className="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="600" height="375" loading="lazy" />
+            <img src={logo} className="home-logo d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="600" height="375" loading="lazy" />
           </div>
         </div>
       </div>
