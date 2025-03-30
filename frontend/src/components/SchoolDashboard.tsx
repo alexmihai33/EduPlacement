@@ -14,7 +14,7 @@ type Tables = {
 const SchoolDashboard: React.FC = () => {
   const [currentTable, setCurrentTable] = useState<string>('Table 1');
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
-  const [data, setData] = useState<TableRow[]>([]); // To store the fetched data
+  const [data, setData] = useState<TableRow[]>([]);
   const tableRef = useRef<HTMLDivElement>(null);
 
   const tables: Tables = {
@@ -22,36 +22,31 @@ const SchoolDashboard: React.FC = () => {
     'Table 2': Array.from({ length: 6 }, (_, i) => ({ id: i + 1, columnA: '', columnB: '', columnC: '', columnD: '', columnE: '', columnF: '' })),
   };
 
-  // Fetch data when component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://eduplacement-4.onrender.com/api/table1/user/1'); // Replace with your API endpoint
+        const response = await fetch('https://eduplacement-4.onrender.com/api/table1a1');
         if (response.ok) {
           const data = await response.json();
-          setData(data); // Store fetched data
+          setData(data);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
     fetchData();
   }, []);
 
-  // Effect to listen for fullscreen changes
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullScreen(!!document.fullscreenElement);
     };
-
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
 
-  // Render table rows dynamically
   const renderTableRows = () => {
     return data.map((row, index) => (
       <tr key={index}>
@@ -65,7 +60,7 @@ const SchoolDashboard: React.FC = () => {
                 onChange={(e) => {
                   const updatedData = [...data];
                   updatedData[index][key] = e.target.value;
-                  setData(updatedData); // Update state with modified data
+                  setData(updatedData);
                 }}
               />
             </td>
@@ -75,7 +70,6 @@ const SchoolDashboard: React.FC = () => {
     ));
   };
 
-  // Handle full screen toggle
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
       tableRef.current?.requestFullscreen();
@@ -84,19 +78,16 @@ const SchoolDashboard: React.FC = () => {
     }
   };
 
-  // Send PATCH request to update data on the backend
   const handlePatchData = async () => {
     try {
-      const response = await fetch('https://eduplacement-4.onrender.com/api/table1/user/1', {
+      const response = await fetch('https://eduplacement-4.onrender.com/api/table1a1', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data), // Just send the rows array (not wrapped in { userId: 1 })
+        body: JSON.stringify(data),
       });
-  
-      if (response.ok) {
-      } else {
+      if (!response.ok) {
         alert('Failed to update data!');
       }
     } catch (error) {
@@ -120,7 +111,7 @@ const SchoolDashboard: React.FC = () => {
               {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
             </button>
           </div>
-          <div className="table-container">
+          <div className="table-container" style={{ overflow: 'auto', maxHeight: '500px', maxWidth: '100%' }}>
             <table className="table table-bordered">
               <thead>
                 <tr>
@@ -131,7 +122,7 @@ const SchoolDashboard: React.FC = () => {
             </table>
           </div>
           <div className="d-flex justify-content-end">
-            <button className="btn btn-success me-2 mb-4" onClick={handlePatchData}>Save Changes</button>
+            <button className="btn btn-success me-2 mb-4" onClick={handlePatchData}>Save</button>
             <button className="btn btn-secondary mb-4">Reset</button>
           </div>
         </div>
