@@ -77,7 +77,7 @@ const SchoolDashboard: React.FC = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:8080/api/table1a1/by-pj', {
+        const response = await axios.get('https://eduplacement-4.onrender.com/api/table1a1/by-pj', {
           params: { pj: userPj },
         });
 
@@ -138,13 +138,13 @@ const SchoolDashboard: React.FC = () => {
       // POST new rows
       if (newRows.length > 0) {
         await Promise.all(
-          newRows.map(row => axios.post('http://localhost:8080/api/table1a1', row))
+          newRows.map(row => axios.post('https://eduplacement-4.onrender.com/api/table1a1', row))
         );
       }
 
       // PATCH existing rows
       if (existingRows.length > 0) {
-        await axios.patch('http://localhost:8080/api/table1a1', existingRows);
+        await axios.patch('https://eduplacement-4.onrender.com/api/table1a1', existingRows);
       }
     } catch (error) {
       console.error('Eroare la salvarea datelor:', error);
@@ -156,7 +156,7 @@ const SchoolDashboard: React.FC = () => {
     if (!window.confirm('Ești sigur că dorești să ștergi acest rând?')) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/table1a1/${id}`);
+      await axios.delete(`https://eduplacement-4.onrender.com/api/table1a1/${id}`);
       setData(prevData => prevData.filter(row => row.id !== id));
     } catch (error) {
       console.error('Eroare la ștergerea rândului:', error);

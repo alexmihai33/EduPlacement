@@ -39,7 +39,7 @@ const InspectorateDashboard: React.FC = () => {
 
     const fetchSchoolOptions = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/table1a1/distinct-pjs');
+            const response = await axios.get('https://eduplacement-4.onrender.com/api/table1a1/distinct-pjs');
             const options = response.data.map((pj: string) => ({
                 label: pj,
                 value: pj
@@ -59,7 +59,7 @@ const InspectorateDashboard: React.FC = () => {
         if (!selectedPJ) return;
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:8080/api/table1a1/by-pj?pj=${selectedPJ}`);
+            const response = await axios.get(`https://eduplacement-4.onrender.com/api/table1a1/by-pj?pj=${selectedPJ}`);
             const cleaned = response.data.map((row: TableRow) => {
                 const newRow: TableRow = { ...row };
                 Object.keys(newRow).forEach((key) => {
