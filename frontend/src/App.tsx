@@ -12,7 +12,6 @@ import Support from "./components/Support";
 import { useAuth0 } from "@auth0/auth0-react";
 import "./App.css";
 import InspectorateDashboard from "./components/InspectorateDashboard";
-import { useEffect } from "react";
 
 const App = () => {
   const { isAuthenticated, isLoading, error, user } = useAuth0();

@@ -9,7 +9,6 @@ import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import Messaging from './Messaging';
 
-
 type TableRow = {
   id: number;
   [key: string]: string | number | null;
@@ -199,9 +198,9 @@ const SchoolDashboard: React.FC = () => {
       </tr>
     ));
   };
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-
-  const ai = new GoogleGenAI({ apiKey: "AIzaSyAWddg76_jU-QscBqiZy12NNzUWU7hj6PQ" });
+  const ai = new GoogleGenAI({ apiKey: apiKey});
 
   const handleVerifyWithGemini = async () => {
     setShowModal(true)
