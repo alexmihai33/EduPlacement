@@ -61,18 +61,11 @@ const editableColumns = columns.filter(col => col.key !== 'pj');
 const SchoolDashboard: React.FC = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [data, setData] = useState<TableRow[]>([]);
-  const [originalData, setOriginalData] = useState<TableRow[]>([]);
   const [loading, setLoading] = useState(false); // To handle the loading state
   const [aiResponse, setAiResponse] = useState<string | null>(null); // To store AI response
   const [showModal, setShowModal] = useState(false); // For controlling modal visibility\
-  const [currentTable, setCurrentTable] = useState<string>('Table 1');
   const tableRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth0()
-
-  const tables = {
-    'Tabel1A1': '',
-    'Tabel1A2': ''
-  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,7 +92,6 @@ const SchoolDashboard: React.FC = () => {
         });
 
         setData(cleanedResult);
-        setOriginalData(cleanedResult);
       } catch (error) {
         console.error('Error fetching filtered data:', error);
         alert("Eroare la încărcarea datelor.");
