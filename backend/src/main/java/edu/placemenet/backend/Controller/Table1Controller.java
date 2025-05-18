@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/table1")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins="*")
 public class Table1Controller {
 
     @Autowired

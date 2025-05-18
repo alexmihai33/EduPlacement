@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/table1a1")
+@RequestMapping(value="/api/table1a1")
 @CrossOrigin(origins = "*")
 public class Table1A1Controller {
 
@@ -18,7 +18,7 @@ public class Table1A1Controller {
 
     @GetMapping
     public List<Table1A1> getAllRows() {
-        return service.getAllRows();
+        return service.getAllRowsSortedById(); // updated method name
     }
 
     @GetMapping("/{id}")
@@ -31,10 +31,21 @@ public class Table1A1Controller {
         return service.saveRow(row);
     }
 
-    @PatchMapping("/{id}")
-    public Table1A1 updateRow(@PathVariable Long id, @RequestBody Table1A1 updatedRow) {
-        return service.updateRow(id, updatedRow);
+    @PatchMapping
+    public List<Table1A1> updateAllRows(@RequestBody List<Table1A1> updatedRows) {
+        return service.updateAllRows(updatedRows);
     }
+
+    @GetMapping("/distinct-pjs")
+    public List<String> getDistinctPjs() {
+        return service.getDistinctPjs();
+    }
+
+    @GetMapping("/by-pj")
+    public List<Table1A1> getRowsByPj(@RequestParam String pj) {
+        return service.getRowsByPj(pj);
+    }
+
 
     @DeleteMapping("/{id}")
     public void deleteRow(@PathVariable Long id) {
