@@ -39,7 +39,7 @@ const InspectorateDashboard: React.FC = () => {
 
     const fetchSchoolOptions = async () => {
         try {
-            const response = await axios.get('https://eduplacement-4.onrender.com/api/table1a1/distinct-pjs');
+            const response = await axios.get('http://localhost:8080/api/table1a1/distinct-pjs');
             const options = response.data.map((pj: string) => ({
                 label: pj,
                 value: pj
@@ -59,7 +59,7 @@ const InspectorateDashboard: React.FC = () => {
         if (!selectedPJ) return;
         setLoading(true);
         try {
-            const response = await axios.get(`https://eduplacement-4.onrender.com/api/table1a1/by-pj?pj=${selectedPJ}`);
+            const response = await axios.get(`http://localhost:8080/api/table1a1/by-pj?pj=${selectedPJ}`);
             const cleaned = response.data.map((row: TableRow) => {
                 const newRow: TableRow = { ...row };
                 Object.keys(newRow).forEach((key) => {
@@ -80,7 +80,9 @@ const InspectorateDashboard: React.FC = () => {
         const userTableData = data;
         console.log(JSON.stringify(data));
 
-        const ai = new GoogleGenAI({ apiKey: "AIzaSyAWddg76_jU-QscBqiZy12NNzUWU7hj6PQ" });
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+        const ai = new GoogleGenAI({ apiKey: apiKey });
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-preview-04-17",
