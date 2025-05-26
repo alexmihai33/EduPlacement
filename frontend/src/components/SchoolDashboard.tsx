@@ -15,51 +15,10 @@ type TableRow = {
   [key: string]: string | number | null;
 };
 
-const columns = [
-  { key: "pj", label: "PJ" },
-  { key: "unitate", label: "Unitate" },
-  { key: "filiera", label: "Filiera" },
-  { key: "specializare", label: "Specializare" },
-  { key: "formatiuneStudiiAnteprescolar", label: "Formațiune Studii\nAntepreșcolar" },
-  { key: "nrCopiiExistentAnteprescolar", label: "Nr. Copii Existent\nAntepreșcolar" },
-  { key: "nrGrupeExistentAnteprescolar", label: "Nr. Grupe Existent\nAntepreșcolar" },
-  { key: "nrCopiiPropusAnteprescolar", label: "Nr. Copii Propus\nAntepreșcolar" },
-  { key: "formatiuneStudiiPrescolar", label: "Formațiune Studii\nPreșcolar" },
-  { key: "nrCopiiExistentPrescolar", label: "Nr. Copii Existent\nPreșcolar" },
-  { key: "nrGrupeExistentPrescolar", label: "Nr. Grupe Existent\nPreșcolar" },
-  { key: "nrCopiiPropusPrescolar", label: "Nr. Copii Propus\nPreșcolar" },
-  { key: "nrGrupePropusPrescolar", label: "Nr. Grupe Propus\nPreșcolar" },
-  { key: "formatiuneStudiiPrimar", label: "Formațiune Studii\nPrimar" },
-  { key: "nrEleviExistentPrimar", label: "Nr. Elevi Existent\nPrimar" },
-  { key: "nrClaseExistentPrimar", label: "Nr. Clase Existent\nPrimar" },
-  { key: "nrEleviPropusPrimar", label: "Nr. Elevi Propus\nPrimar" },
-  { key: "nrClasePropusPrimar", label: "Nr. Clase Propus\nPrimar" },
-  { key: "formatiuneStudiiGimnazial", label: "Formațiune Studii\nGimnazial" },
-  { key: "nrEleviExistentGimnazial", label: "Nr. Elevi Existent\nGimnazial" },
-  { key: "nrClaseExistentGimnazial", label: "Nr. Clase Existent\nGimnazial" },
-  { key: "nrEleviPropusGimnazial", label: "Nr. Elevi Propus\nGimnazial" },
-  { key: "nrClasePropusGimnazial", label: "Nr. Clase Propus\nGimnazial" },
-  { key: "formatiuneStudiiProfesional", label: "Formațiune Studii\nProfesional" },
-  { key: "nrEleviExistentProfesional", label: "Nr. Elevi Existent\nProfesional" },
-  { key: "nrClaseExistentProfesional", label: "Nr. Clase Existent\nProfesional" },
-  { key: "nrEleviPropusProfesional", label: "Nr. Elevi Propus\nProfesional" },
-  { key: "nrClasePropusProfesional", label: "Nr. Clase Propus\nProfesional" },
-  { key: "formatiuneStudiiLiceal", label: "Formațiune Studii\nLiceal" },
-  { key: "nrEleviExistentLiceal", label: "Nr. Elevi Existent\nLiceal" },
-  { key: "nrClaseExistentLiceal", label: "Nr. Clase Existent\nLiceal" },
-  { key: "nrEleviPropusLiceal", label: "Nr. Elevi Propus\nLiceal" },
-  { key: "nrClasePropusLiceal", label: "Nr. Clase Propus\nLiceal" },
-  { key: "formatiuneStudiiPostliceal", label: "Formațiune Studii\nPostliceal" },
-  { key: "nrEleviExistentPostliceal", label: "Nr. Elevi Existent\nPostliceal" },
-  { key: "nrClaseExistentPostliceal", label: "Nr. Clase Existent\nPostliceal" },
-  { key: "nrEleviPropusPostliceal", label: "Nr. Elevi Propus\nPostliceal" },
-  { key: "nrClasePropusPostliceal", label: "Nr. Clase Propus\nPostliceal" },
-];
-
-const editableColumns = columns.filter(col => col.key !== 'pj');
-
 const SchoolDashboard: React.FC = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [columns, setColumns] = useState<{ key: string; label: string }[]>([]);
+  const [selectedTable, setSelectedTable] = useState<'table1a1' | 'table1a2'>('table1a1');
   const [data, setData] = useState<TableRow[]>([]);
   const [loading, setLoading] = useState(false); // To handle the loading state
   const [aiResponse, setAiResponse] = useState<string | null>(null); // To store AI response
@@ -67,9 +26,11 @@ const SchoolDashboard: React.FC = () => {
   const tableRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth0()
 
+  const editableColumns = columns.filter(col => col.key !== 'pj');
+
   useEffect(() => {
     const fetchData = async () => {
-      const userPj = user?.pj; // Adjust this if pj is nested elsewhere in the user object
+      const userPj = user?.pj;
 
       if (!userPj) {
         alert("Nu s-a putut prelua codul unității (pj).");
@@ -77,29 +38,46 @@ const SchoolDashboard: React.FC = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:8080/api/table1a1/by-pj', {
+        const response = await axios.get(`http://localhost:8080/api/${selectedTable}/by-pj`, {
           params: { pj: userPj },
         });
 
         const result = response.data;
 
-        const cleanedResult = result.map((row: TableRow) => {
-          const newRow: TableRow = { ...row };
-          columns.forEach(col => {
-            if (newRow[col.key] == null) newRow[col.key] = '';
-          });
-          return newRow;
-        });
+        // Compute columns from API result keys (exclude "id" or any unwanted keys)
+        if (result.length > 0) {
+          const dynamicColumns = Object.keys(result[0])
+            .filter(key => key !== 'id')  // Exclude columns you don’t want displayed
+            .map(key => ({
+              key,
+              label: key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())
+            }));
 
-        setData(cleanedResult);
+          setColumns(dynamicColumns);
+
+          // Add missing keys as empty string
+          const cleanedResult = result.map((row: TableRow) => {
+            const newRow: TableRow = { ...row };
+            dynamicColumns.forEach(col => {
+              if (newRow[col.key] == null) newRow[col.key] = '';
+            });
+            return newRow;
+          });
+
+          setData(cleanedResult);
+        } else {
+          setColumns([]);
+          setData([]);
+        }
       } catch (error) {
         console.error('Error fetching filtered data:', error);
         alert("Eroare la încărcarea datelor.");
       }
     };
 
+
     fetchData();
-  }, [user, columns]);
+  }, [user, selectedTable]);
 
 
   useEffect(() => {
@@ -138,13 +116,13 @@ const SchoolDashboard: React.FC = () => {
       // POST new rows
       if (newRows.length > 0) {
         await Promise.all(
-          newRows.map(row => axios.post('http://localhost:8080/api/table1a1', row))
+          newRows.map(row => axios.post(`http://localhost:8080/api/${selectedTable}`, row))
         );
       }
 
       // PATCH existing rows
       if (existingRows.length > 0) {
-        await axios.patch('http://localhost:8080/api/table1a1', existingRows);
+        await axios.patch(`http://localhost:8080/api/${selectedTable}`, existingRows);
       }
     } catch (error) {
       console.error('Eroare la salvarea datelor:', error);
@@ -156,7 +134,7 @@ const SchoolDashboard: React.FC = () => {
     if (!window.confirm('Ești sigur că dorești să ștergi acest rând?')) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/table1a1/${id}`);
+      await axios.delete(`http://localhost:8080/api/${selectedTable}/${id}`);
       setData(prevData => prevData.filter(row => row.id !== id));
     } catch (error) {
       console.error('Eroare la ștergerea rândului:', error);
@@ -246,7 +224,7 @@ const SchoolDashboard: React.FC = () => {
 
       <div className="row">
         <div className={`col-md-${isFullScreen ? '12' : '9'}`}>
-
+          <h4 className="mb-2"><i className="bi bi-table me-2 ms-1" style={{ color:"#007bff" }}></i>{selectedTable === 'table1a1' ? '1A1' : '1A2'}</h4>
           <div
             className="table-container"
             style={{
@@ -255,8 +233,7 @@ const SchoolDashboard: React.FC = () => {
               maxWidth: '100%',
             }}
           >
-
-
+            
             <table className="table table-bordered">
               <thead>
                 <tr>
@@ -274,7 +251,7 @@ const SchoolDashboard: React.FC = () => {
               <tbody>{renderTableRows()}</tbody>
             </table>
           </div>
-          <div className="d-flex justify-content-end">
+          <div className="d-flex justify-content-end mt-3">
 
             <button className="btn btn-AI mb-4 me-2" style={{ backgroundColor: '#6610f2', color: 'white' }} onClick={handleVerifyWithGemini}>
               <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
@@ -312,10 +289,15 @@ const SchoolDashboard: React.FC = () => {
                 <div className="card-body">
                   <h4>Lista Tabele</h4>
                   <label className="form-label">Selectează tabelul:</label>
-                  <select className="form-select">
-                    <option>Tabel 1A1</option>
-                    <option>Tabel 1A2</option>
+                  <select
+                    className="form-select"
+                    value={selectedTable}
+                    onChange={(e) => setSelectedTable(e.target.value as 'table1a1' | 'table1a2')}
+                  >
+                    <option value="table1a1">Tabel 1A1</option>
+                    <option value="table1a2">Tabel 1A2</option>
                   </select>
+
                 </div>
               </div>
 
@@ -390,9 +372,9 @@ const SchoolDashboard: React.FC = () => {
         </Modal.Footer>
       </Modal>
 
-      {!isFullScreen?(user?.pj && user?.email && (
+      {!isFullScreen ? (user?.pj && user?.email && (
         <Messaging pj={user.pj} />
-      )):null}
+      )) : null}
 
     </div >
   );

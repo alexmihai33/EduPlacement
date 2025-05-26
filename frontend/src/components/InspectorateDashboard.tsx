@@ -16,8 +16,8 @@ type TableRow = {
 type Option = { label: string; value: string };
 
 const tableOptions: Option[] = [
-    { label: 'Tabel 1A1', value: '1a1' },
-    { label: 'Tabel 1A2', value: '1a2' }
+    { label: 'Tabel 1A1', value: 'table1a1' },
+    { label: 'Tabel 1A2', value: 'table1a2' }
 ];
 
 const InspectorateDashboard: React.FC = () => {
@@ -32,14 +32,20 @@ const InspectorateDashboard: React.FC = () => {
     const [showModal, setShowModal] = useState(false); // For controlling modal visibility\
     const { user } = useAuth0()
 
-    const columns = Object.keys(data[0] || {}).map((key) => ({
-        key,
-        label: key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase())
-    }));
+    const columns = (() => {
+        if (data.length === 0) return [];
+
+        const firstRow = data[0];
+        return Object.keys(firstRow).map((key) => ({
+            key,
+            label: typeof firstRow[key] === 'string' ? firstRow[key] as string : key
+        }));
+    })();
+
 
     const fetchSchoolOptions = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/table1a1/distinct-pjs');
+            const response = await axios.get(`http://localhost:8080/api/${selectedTable}/distinct-pjs`);
             const options = response.data.map((pj: string) => ({
                 label: pj,
                 value: pj
@@ -59,7 +65,7 @@ const InspectorateDashboard: React.FC = () => {
         if (!selectedPJ) return;
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:8080/api/table1a1/by-pj?pj=${selectedPJ}`);
+            const response = await axios.get(`http://localhost:8080/api/${selectedTable}/by-pj?pj=${selectedPJ}`);
             const cleaned = response.data.map((row: TableRow) => {
                 const newRow: TableRow = { ...row };
                 Object.keys(newRow).forEach((key) => {
@@ -112,7 +118,7 @@ const InspectorateDashboard: React.FC = () => {
 
     useEffect(() => {
         fetchSchoolOptions();
-    }, []);
+    }, [selectedTable]);
 
     useEffect(() => {
         fetchData();
@@ -209,16 +215,17 @@ const InspectorateDashboard: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.map((row, rowIdx) => (
+                                {data.slice(1).map((row, rowIdx) => (
                                     <tr key={rowIdx}>
                                         {columns.map((col) => (
                                             <td key={col.key} className="text-nowrap align-middle">
-                                                {row[col.key]}
+                                                {row[col.key] ?? ''}
                                             </td>
                                         ))}
                                     </tr>
                                 ))}
                             </tbody>
+
                         </table>
                     </div>
 
@@ -234,7 +241,7 @@ const InspectorateDashboard: React.FC = () => {
                         </button>
 
                     </div>
-                    {!isFullScreen? ( <div className="row mb-4">
+                    {!isFullScreen ? (<div className="row mb-4">
                         <div className="col-md-6 mb-3">
                             <div className="card shadow border-0 h-100">
                                 <div className="card-body">
@@ -260,8 +267,8 @@ const InspectorateDashboard: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>):null}
-                   
+                    </div>) : null}
+
 
                 </>
             )}
@@ -308,9 +315,9 @@ const InspectorateDashboard: React.FC = () => {
                 </Modal.Footer>
             </Modal>
 
-            {!isFullScreen?(user?.pj && user?.email && (
+            {!isFullScreen ? (user?.pj && user?.email && (
                 <Messaging key={selectedPJ} pj={selectedPJ} />
-            )):null}
+            )) : null}
 
         </div>
     );
