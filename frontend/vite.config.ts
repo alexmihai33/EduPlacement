@@ -11,4 +11,7 @@ export default defineConfig({
       input: 'index.html',  // Specify the entry file
     },
   },
+  define: {
+    global: 'window'
+  },
 })

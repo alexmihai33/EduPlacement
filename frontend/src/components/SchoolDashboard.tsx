@@ -18,7 +18,7 @@ type TableRow = {
 const SchoolDashboard: React.FC = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [columns, setColumns] = useState<{ key: string; label: string }[]>([]);
-  const [selectedTable, setSelectedTable] = useState<'table1a1' | 'table1a2'>('table1a1');
+  const [selectedTable, setSelectedTable] = useState<'table1a1' | 'table1a2' | 'table1b'>('table1a1');
   const [data, setData] = useState<TableRow[]>([]);
   const [loading, setLoading] = useState(false); // To handle the loading state
   const [aiResponse, setAiResponse] = useState<string | null>(null); // To store AI response
@@ -292,10 +292,11 @@ const SchoolDashboard: React.FC = () => {
                   <select
                     className="form-select"
                     value={selectedTable}
-                    onChange={(e) => setSelectedTable(e.target.value as 'table1a1' | 'table1a2')}
+                    onChange={(e) => setSelectedTable(e.target.value as 'table1a1' | 'table1a2' | 'table1b')}
                   >
                     <option value="table1a1">Tabel 1A1</option>
                     <option value="table1a2">Tabel 1A2</option>
+                    <option value="table1b">Tabel 1B</option>
                   </select>
 
                 </div>
@@ -305,7 +306,7 @@ const SchoolDashboard: React.FC = () => {
                 <div className="card shadow border-0 mb-2">
                   <div className="card-body">
                     <h3 style={{ color: "#6610f2" }}>
-                      A.I. <i className="bi bi-robot ms-2" style={{ fontSize: '1.5rem' }}></i>
+                      Asistent AI<i className="bi bi-robot ms-2" style={{ fontSize: '1.5rem' }}></i>
                     </h3>
                     <p>
                       Utilizați sugestiile AI prin butonul aflat sub tabel, pentru corectarea mai usoara a datelor.
@@ -316,7 +317,7 @@ const SchoolDashboard: React.FC = () => {
                 <div className="card shadow border-0 mb-2">
                   <div className="card-body">
                     <h3 style={{ color: "#6f42c1" }}>
-                      Chat <i className="bi bi-chat-dots ms-2"></i>
+                      Chat<i className="bi bi-chat-dots ms-2"></i>
                     </h3>
                     <p>
                       Utilizați funcția de chat găsită în partea de jos-dreapta a ecranului pentru a comunica cu inspectoratul școlar județean.

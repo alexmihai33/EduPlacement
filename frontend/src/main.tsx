@@ -5,9 +5,6 @@ import createBrowserHistory from "./history";
 import { getConfig } from "./config";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
-
-
 const onRedirectCallback = (appState: any) => {
   createBrowserHistory.push(
     appState && appState.returnTo ? appState.returnTo : window.location.pathname

@@ -1,3 +1,6 @@
+// add at the very top before anything else
+(window as any).global = window;
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Container } from "reactstrap";
 import Loading from "./components/Loading";

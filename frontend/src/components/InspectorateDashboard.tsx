@@ -17,7 +17,8 @@ type Option = { label: string; value: string };
 
 const tableOptions: Option[] = [
     { label: 'Tabel 1A1', value: 'table1a1' },
-    { label: 'Tabel 1A2', value: 'table1a2' }
+    { label: 'Tabel 1A2', value: 'table1a2' },
+    { label: 'Tabel 1B', value: 'table1b' }
 ];
 
 const InspectorateDashboard: React.FC = () => {
