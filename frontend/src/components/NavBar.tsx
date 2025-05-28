@@ -10,7 +10,6 @@ import {
   NavbarBrand,
   Nav,
   NavItem,
-  Button,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -18,6 +17,29 @@ import {
 } from "reactstrap";
 
 import { useAuth0 } from "@auth0/auth0-react";
+import { Button } from "@mui/material"
+import { styled } from '@mui/material/styles';
+
+const GradientButton = styled(Button)({
+  background: 'linear-gradient(45deg, #6610f2 30%, #9d4edd 90%)',
+  border: 0,
+  borderRadius: '10px',
+  color: 'white',
+  padding: '12px 28px',
+  fontWeight: 700,
+  letterSpacing: '1px',
+  boxShadow: '0 3px 5px 2px rgba(102, 16, 242, .3)',
+  backgroundSize: '200% auto',
+  transition: '0.5s',
+  '&:hover': {
+    backgroundPosition: 'right center',
+    boxShadow: '0 5px 10px 3px rgba(102, 16, 242, .4)',
+    transform: 'translateY(-2px)'
+  },
+  '&:active': {
+    transform: 'translateY(0)'
+  }
+});
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,28 +53,38 @@ const NavBar = () => {
       },
     });
 
-  // Function to apply active class
   const getNavLinkClass = ({ isActive }: any) =>
     isActive ? "nav-link active-link" : "nav-link";
 
   return (
     <div className="nav-container">
-      <Navbar color="light" light expand="md" container={false} fixed="top">
+      <Navbar 
+        className="custom-navbar" // Added custom class
+        expand="md" 
+        container={false} 
+        fixed="top"
+      >
         <Container>
           <NavbarBrand className="logo" />
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
             <Nav className="me-auto" navbar>
-              {isAuthenticated ? (
-                <NavItem>
-                  <RouterNavLink
-                    to="/dashboard"
-                    className={getNavLinkClass}
-                  >
-                    Dashboard
-                  </RouterNavLink>
-                </NavItem>
-              ) : null}
+              {isAuthenticated?(<NavItem>
+                <RouterNavLink
+                  to="/dashboard"
+                  className={getNavLinkClass}
+                >
+                  Dashboard
+                </RouterNavLink>
+              </NavItem>):null}
+              {isAuthenticated ? (<NavItem>
+                <RouterNavLink
+                  to="/profile"
+                  className={getNavLinkClass}
+                >
+                  Profile
+                </RouterNavLink>
+              </NavItem>) : null}
               <NavItem>
                 <RouterNavLink
                   to="/"
@@ -71,18 +103,18 @@ const NavBar = () => {
               </NavItem>
               <NavItem>
                 <RouterNavLink
-                  to="/guide"
-                  className={getNavLinkClass}
-                >
-                  Guide
-                </RouterNavLink>
-              </NavItem>
-              <NavItem>
-                <RouterNavLink
                   to="/support"
                   className={getNavLinkClass}
                 >
                   Support
+                </RouterNavLink>
+              </NavItem>
+              <NavItem>
+                <RouterNavLink
+                  to="/guide"
+                  className={getNavLinkClass}
+                >
+                  Ghid
                 </RouterNavLink>
               </NavItem>
             </Nav>
@@ -90,14 +122,14 @@ const NavBar = () => {
             <Nav className="d-none d-md-block" navbar>
               {!isAuthenticated && (
                 <NavItem>
-                  <Button
+                  <GradientButton
                     id="qsLoginBtn"
                     color="primary"
-                    className="btn-margin"
+                    className="btn-margin login-btn" // Added class
                     onClick={() => loginWithRedirect()}
                   >
                     Log in
-                  </Button>
+                  </GradientButton>
                 </NavItem>
               )}
               {isAuthenticated && (
@@ -110,7 +142,7 @@ const NavBar = () => {
                       width="50"
                     />
                   </DropdownToggle>
-                  <DropdownMenu>
+                  <DropdownMenu className="dropdown-purple"> {/* Added class */}
                     <DropdownItem header>{user?.name}</DropdownItem>
                     <DropdownItem
                       tag={RouterNavLink}
@@ -133,14 +165,15 @@ const NavBar = () => {
             {!isAuthenticated && (
               <Nav className="d-md-none" navbar>
                 <NavItem>
-                  <Button
+                  <GradientButton
                     id="qsLoginBtn"
                     color="primary"
-                    block
+                  
+                    className="login-btn" // Added class
                     onClick={() => loginWithRedirect({})}
                   >
                     Log in
-                  </Button>
+                  </GradientButton>
                 </NavItem>
               </Nav>
             )}
