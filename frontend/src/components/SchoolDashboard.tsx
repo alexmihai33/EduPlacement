@@ -1,19 +1,74 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../App.css';
 import logo from "../assets/logo.png";
-import { Button, Modal } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import { GoogleGenAI } from "@google/genai";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import Messaging from './Messaging';
-
+import { Button } from "@mui/material"
+import { styled } from '@mui/material/styles';
 
 type TableRow = {
   id: number;
   [key: string]: string | number | null;
 };
+const GradientButton = styled(Button)({
+  background: 'linear-gradient(45deg, #6610f2 30%, #9d4edd 90%)',
+  border: 0,
+  borderRadius: '10px',
+  color: 'white',
+  padding: '12px 28px',
+  fontWeight: 700,
+  letterSpacing: '1px',
+  boxShadow: '0 3px 5px 2px rgba(102, 16, 242, .3)',
+  backgroundSize: '200% auto',
+  transition: '0.5s',
+  '&:hover': {
+    backgroundPosition: 'right center',
+    boxShadow: '0 5px 10px 3px rgba(102, 16, 242, .4)',
+    transform: 'translateY(-2px)'
+  },
+  '&:active': {
+    transform: 'translateY(0)'
+  }
+});
+
+const BorderAnimationButton = styled(Button)({
+  backgroundColor: 'transparent',
+  border: '2px solid transparent',
+  borderRadius: '8px',
+  color: '#6610f2',
+  padding: '12px 28px',
+  fontWeight: 700,
+  position: 'relative',
+  transition: 'all 0.4s ease',
+  '&:hover': {
+    backgroundColor: 'rgba(102, 16, 242, 0.05)',
+    color: '#4d0cb8'
+  },
+  '&::before, &::after': {
+    content: '""',
+    position: 'absolute',
+    width: '0',
+    height: '2px',
+    backgroundColor: '#6610f2',
+    transition: 'all 0.4s ease'
+  },
+  '&::before': {
+    top: 0,
+    left: 0,
+  },
+  '&::after': {
+    bottom: 0,
+    right: 0,
+  },
+  '&:hover::before, &:hover::after': {
+    width: '100%'
+  }
+});
 
 const SchoolDashboard: React.FC = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -96,6 +151,24 @@ const SchoolDashboard: React.FC = () => {
     }
   };
 
+
+  const handleExportExcel = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/export/${selectedTable}?pj=${user?.pj}`, {
+        responseType: 'blob'
+      })
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${selectedTable}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Export failed:', error);
+      window.alert("Unable to export table");
+    }
+  }
 
   const handlePatchData = async () => {
     const userPj = user?.pj;
@@ -218,13 +291,13 @@ const SchoolDashboard: React.FC = () => {
     <div className={`container-fluid school-dashboard ${isFullScreen ? 'fullscreen' : ''}`} ref={tableRef}>
       <div className="text-center mb-5 mt-5">
         <img className="mb-3 app-logo" src={logo} alt="Logo" width="60" />
-        <h1 className="mb-4">School Dashboard</h1>
-        <p className="lead">Completati tabelele de incadrare</p>
+        <h1 className="mb-4">Tabele Incadrare | PJ: {user?.pj}</h1>
+        <h2></h2>
       </div>
 
       <div className="row">
         <div className={`col-md-${isFullScreen ? '12' : '9'}`}>
-          <h4 className="mb-2"><i className="bi bi-table me-2 ms-1" style={{ color:"#007bff" }}></i>{selectedTable === 'table1a1' ? '1A1' : '1A2'}</h4>
+
           <div
             className="table-container"
             style={{
@@ -233,7 +306,7 @@ const SchoolDashboard: React.FC = () => {
               maxWidth: '100%',
             }}
           >
-            
+
             <table className="table table-bordered">
               <thead>
                 <tr>
@@ -251,84 +324,188 @@ const SchoolDashboard: React.FC = () => {
               <tbody>{renderTableRows()}</tbody>
             </table>
           </div>
-          <div className="d-flex justify-content-end mt-3">
+          <div className="d-flex justify-content-between align-items-center mt-3 flex-wrap mb-5">
+            <div className="d-flex gap-2 mb-2">
+              <BorderAnimationButton
+                variant="outlined"
+                onClick={toggleFullScreen}
+                style={{
+                  padding: '8px 16px',
+                  borderWidth: '1px',
+                  opacity: 0.85,
+                }}
+              >
+                <i className={`bi ${isFullScreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'} me-1`}></i>
+                {isFullScreen ? 'Ieșire ecran complet' : 'Ecran complet'}
+              </BorderAnimationButton>
+              <BorderAnimationButton
+                variant="outlined"
+                onClick={() => {
+                  const newRow: TableRow = { id: -Date.now() };
+                  editableColumns.forEach(col => {
+                    newRow[col.key] = '';
+                  });
+                  setData(prev => [...prev, newRow]);
+                }}
+                style={{
+                  padding: '8px 16px',
+                  borderWidth: '1px',
+                  opacity: 0.85,
+                }}
+              >
+                <i className="bi bi-plus-circle me-1"></i> Adaugă rând
+              </BorderAnimationButton>
+            </div>
 
-            <button className="btn btn-AI mb-4 me-2" style={{ backgroundColor: '#6610f2', color: 'white' }} onClick={handleVerifyWithGemini}>
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                <i className="bi bi-robot" style={{ fontSize: '1.5rem' }}></i> Sugestii AI
-              </span>
-            </button>
+    
+            <div className="d-flex gap-2 mb-2">
+              <GradientButton
+                className="btn-AI"
+                onClick={handleVerifyWithGemini}
+              >
+                <i className="bi bi-robot me-2"></i> Sugestii AI
+              </GradientButton>
 
-            <button className="btn btn-outline-primary me-2 mb-4" onClick={handlePatchData}>
-              <i className="bi bi-save" style={{ marginRight: '5px' }}></i> Save
-            </button>
-            <button className="btn btn-outline-primary me-2 mb-4" onClick={() => {
-              const newRow: TableRow = { id: -Date.now() };
-              editableColumns.forEach(col => {
-                newRow[col.key] = '';
-              });
-              setData(prev => [...prev, newRow]);
-            }}>
-              <i className="bi bi-plus-circle" style={{ marginRight: '5px' }}></i> Adaugă rând
-            </button>
+              <GradientButton onClick={handlePatchData}>
+                <i className="bi bi-bookmark-check me-2"></i> Save
+              </GradientButton>
 
-            <button className="btn btn-outline-primary me-2 mb-4" onClick={toggleFullScreen}>
-              <i className="bi bi-arrows-fullscreen me-1"></i>
-              {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
-            </button>
-
-
+              <GradientButton variant="outlined" onClick={handleExportExcel}>
+                <i className="bi bi-file-earmark-arrow-down me-2"></i> Export
+              </GradientButton>
+            </div>
           </div>
         </div>
 
         {!isFullScreen && (
           <div className="col-md-3">
             <div className="menu">
-
-              <div className="card shadow border-0 mb-2">
+              {/* Modern Card with Glass Effect */}
+              <div className="card glass-card mb-4 border-0">
                 <div className="card-body">
-                  <h4>Lista Tabele</h4>
-                  <label className="form-label">Selectează tabelul:</label>
-                  <select
-                    className="form-select"
-                    value={selectedTable}
-                    onChange={(e) => setSelectedTable(e.target.value as 'table1a1' | 'table1a2' | 'table1b')}
-                  >
-                    <option value="table1a1">Tabel 1A1</option>
-                    <option value="table1a2">Tabel 1A2</option>
-                    <option value="table1b">Tabel 1B</option>
-                  </select>
-
-                </div>
-              </div>
-
-              <div className="">
-                <div className="card shadow border-0 mb-2">
-                  <div className="card-body">
-                    <h3 style={{ color: "#6610f2" }}>
-                      Asistent AI<i className="bi bi-robot ms-2" style={{ fontSize: '1.5rem' }}></i>
-                    </h3>
-                    <p>
-                      Utilizați sugestiile AI prin butonul aflat sub tabel, pentru corectarea mai usoara a datelor.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="card shadow border-0 mb-2">
-                  <div className="card-body">
-                    <h3 style={{ color: "#6f42c1" }}>
-                      Chat<i className="bi bi-chat-dots ms-2"></i>
-                    </h3>
-                    <p>
-                      Utilizați funcția de chat găsită în partea de jos-dreapta a ecranului pentru a comunica cu inspectoratul școlar județean.
-                    </p>
+                  <h4 className="mb-3" style={{ color: '#6610f2' }}>Lista Tabele</h4>
+                  <label className="form-label mb-2">Selectează tabelul:</label>
+                  <div className="position-relative">
+                    <select
+                      className="form-select glass-select"
+                      value={selectedTable}
+                      onChange={(e) => setSelectedTable(e.target.value as 'table1a1' | 'table1a2' | 'table1b')}
+                    >
+                      <option value="table1a1">Tabel 1A1</option>
+                      <option value="table1a2">Tabel 1A2</option>
+                      <option value="table1b">Tabel 1B</option>
+                    </select>
                   </div>
                 </div>
               </div>
 
+              {/* Modern Glass Cards */}
+              <div className="card glass-card border-0 mb-4">
+                <div className="card-body">
+                  <h3 style={{ color: "#6610f2" }}>
+                    <i className="bi bi-robot me-2"></i>Asistent AI
+                  </h3>
+                  <p className="mb-0">
+                    Utilizați sugestiile AI prin butonul aflat sub tabel, pentru corectarea mai usoara a datelor.
+                  </p>
+                </div>
+              </div>
+
+              <div className="card glass-card border-0 mb-4">
+                <div className="card-body">
+                  <h3 style={{ color: "#6f42c1" }}>
+                    <i className="bi bi-chat-dots me-2"></i>Chat
+                  </h3>
+                  <p className="mb-0">
+                    Utilizați funcția de chat găsită în partea de jos-dreapta a ecranului pentru a comunica cu inspectoratul școlar județean.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}
+        {!isFullScreen && (<div className="instructions-card mt-4 border rounded p-4 shadow mb-4" style={{ borderColor: '#dee2e6' }}>
+          <h4 className="mb-3" style={{ color: '#6610f2' }}>
+            <i className="bi bi-info-circle me-2"></i>Instrucțiuni importante
+          </h4>
+
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <div className="d-flex">
+                <div className="me-3" style={{ color: '#6610f2' }}>
+                  <i className="bi bi-table fs-5"></i>
+                </div>
+                <div>
+                  <h6 className="mb-1" style={{ fontWeight: 600 }}>Schimbare tabel</h6>
+                  <p className="mb-0">Puteți selecta un alt tabel folosind meniul "Selectează tabelul" din bara laterală</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <div className="d-flex">
+                <div className="me-3" style={{ color: '#6610f2' }}>
+                  <i className="bi bi-file-earmark-excel fs-5"></i>
+                </div>
+                <div>
+                  <h6 className="mb-1" style={{ fontWeight: 600 }}>Export Excel</h6>
+                  <p className="mb-0">Apăsați butonul "Export" pentru a descărca tabelul curent în format Excel</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <div className="d-flex">
+                <div className="me-3" style={{ color: '#6610f2' }}>
+                  <i className="bi bi-save fs-5"></i>
+                </div>
+                <div>
+                  <h6 className="mb-1" style={{ fontWeight: 600 }}>Salvare modificări</h6>
+                  <p className="mb-0">
+                    <span>Obligatoriu:</span> Apăsați "Save"
+                    după <u>fiecare modificare</u> pentru a salva schimbările
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <div className="d-flex">
+                <div className="me-3" style={{ color: '#6610f2' }}>
+                  <i className="bi bi-arrows-fullscreen fs-5"></i>
+                </div>
+                <div>
+                  <h6 className="mb-1" style={{ fontWeight: 600 }}>Mod ecran complet</h6>
+                  <p className="mb-0">Folosiți butonul "Full Screen" pentru vizualizare optimă pe tot ecranul</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="d-flex">
+                <div className="me-3" style={{ color: '#6610f2' }}>
+                  <i className="bi bi-robot fs-5"></i>
+                </div>
+                <div>
+                  <h6 className="mb-1" style={{ fontWeight: 600 }}>Asistență AI</h6>
+                  <p className="mb-0">Folosiți "Sugestii AI" pentru corectări automate și sfaturi</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="d-flex">
+                <div className="me-3" style={{ color: '#6610f2' }}>
+                  <i className="bi bi-chat-dots fs-5"></i>
+                </div>
+                <div>
+                  <h6 className="mb-1" style={{ fontWeight: 600 }}>Suport inspectorat</h6>
+                  <p className="mb-0">Utilizați funcția de chat pentru întrebări adresate inspectoratului</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>)}
       </div>
 
       {/* Modal for AI Response */}
@@ -365,7 +542,7 @@ const SchoolDashboard: React.FC = () => {
             justifyContent: 'center'
           }}
         >
-          <Button variant="secondary" onClick={() => setShowModal(false)} style={{
+          <Button onClick={() => setShowModal(false)} style={{
             backgroundColor: '#6f42c1', color: "white"
           }}>
             Închide

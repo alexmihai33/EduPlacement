@@ -1,12 +1,69 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import '../App.css';
-import { Button, Modal, Spinner } from 'react-bootstrap';
+import { Modal, Spinner } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import logo from '../assets/logo.png';
 import { GoogleGenAI } from '@google/genai';
 import Messaging from './Messaging';
 import { useAuth0 } from '@auth0/auth0-react';
+import { Button } from "@mui/material"
+import { styled } from '@mui/material/styles';
+
+const GradientButton = styled(Button)({
+    background: 'linear-gradient(45deg, #6610f2 30%, #9d4edd 90%)',
+    border: 0,
+    borderRadius: '10px',
+    color: 'white',
+    padding: '12px 28px',
+    fontWeight: 700,
+    letterSpacing: '1px',
+    boxShadow: '0 3px 5px 2px rgba(102, 16, 242, .3)',
+    backgroundSize: '200% auto',
+    transition: '0.5s',
+    '&:hover': {
+        backgroundPosition: 'right center',
+        boxShadow: '0 5px 10px 3px rgba(102, 16, 242, .4)',
+        transform: 'translateY(-2px)'
+    },
+    '&:active': {
+        transform: 'translateY(0)'
+    }
+});
+
+const BorderAnimationButton = styled(Button)({
+    backgroundColor: 'transparent',
+    border: '2px solid transparent',
+    borderRadius: '8px',
+    color: '#6610f2',
+    padding: '12px 28px',
+    fontWeight: 700,
+    position: 'relative',
+    transition: 'all 0.4s ease',
+    '&:hover': {
+        backgroundColor: 'rgba(102, 16, 242, 0.05)',
+        color: '#4d0cb8'
+    },
+    '&::before, &::after': {
+        content: '""',
+        position: 'absolute',
+        width: '0',
+        height: '2px',
+        backgroundColor: '#6610f2',
+        transition: 'all 0.4s ease'
+    },
+    '&::before': {
+        top: 0,
+        left: 0,
+    },
+    '&::after': {
+        bottom: 0,
+        right: 0,
+    },
+    '&:hover::before, &:hover::after': {
+        width: '100%'
+    }
+});
 
 type TableRow = {
     id: number;
@@ -21,6 +78,15 @@ const tableOptions: Option[] = [
     { label: 'Tabel 1B', value: 'table1b' }
 ];
 
+// Format column labels the same way as in SchoolDashboard
+const formatColumnLabel = (key: string): string => {
+    return key
+        .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+        .replace(/^./, s => s.toUpperCase()) // Capitalize first letter
+        .replace(/ Nr /g, ' Nr. ') // Add dot after Nr
+        .replace(/ Gr /g, ' Gr. '); // Add dot after Gr
+};
+
 const InspectorateDashboard: React.FC = () => {
     const [selectedTable, setSelectedTable] = useState(tableOptions[0].value);
     const [selectedPJ, setSelectedPJ] = useState('');
@@ -29,20 +95,40 @@ const InspectorateDashboard: React.FC = () => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [loading, setLoading] = useState(false);
     const tableRef = useRef<HTMLDivElement>(null);
-    const [aiResponse, setAiResponse] = useState<string | null>(null); // To store AI response
-    const [showModal, setShowModal] = useState(false); // For controlling modal visibility\
+    const [aiResponse, setAiResponse] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState(false);
     const { user } = useAuth0()
 
+    // Format columns using the same transformation as SchoolDashboard
     const columns = (() => {
         if (data.length === 0) return [];
 
         const firstRow = data[0];
-        return Object.keys(firstRow).map((key) => ({
-            key,
-            label: typeof firstRow[key] === 'string' ? firstRow[key] as string : key
-        }));
+        return Object.keys(firstRow)
+            .filter(key => key !== 'id') // Exclude id column
+            .map((key) => ({
+                key,
+                label: formatColumnLabel(key)
+            }));
     })();
 
+    const handleExportExcel = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/export/${selectedTable}?pj=${selectedPJ}`, {
+                responseType: 'blob'
+            })
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${selectedTable}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Export failed:', error);
+            window.alert("Unable to export table");
+        }
+    }
 
     const fetchSchoolOptions = async () => {
         try {
@@ -59,8 +145,6 @@ const InspectorateDashboard: React.FC = () => {
             console.error('Error fetching school options:', error);
         }
     };
-
-
 
     const fetchData = async () => {
         if (!selectedPJ) return;
@@ -80,6 +164,7 @@ const InspectorateDashboard: React.FC = () => {
         }
         setLoading(false);
     };
+
     const handleVerifyWithGemini = async () => {
         setShowModal(true)
         setLoading(true)
@@ -114,7 +199,6 @@ const InspectorateDashboard: React.FC = () => {
         console.log(response.text);
         setLoading(false)
         setAiResponse(aiResponse);
-
     };
 
     useEffect(() => {
@@ -145,15 +229,14 @@ const InspectorateDashboard: React.FC = () => {
         <div className={`container-fluid inspectorate-dashboard ${isFullScreen ? 'fullscreen' : ''}`} ref={tableRef}>
             <div className="text-center mt-5 mb-5">
                 <img className="mb-3 app-logo" src={logo} alt="Logo" width="60" />
-                <h1 className="mb-2">Inspectorate Dashboard</h1>
-                <p className="lead">Verifică datele introduse de unități</p>
+                <h1 className="mb-2">Tabelele Unităților</h1>
             </div>
 
             <div className="row mb-4 align-items-end">
-                <div className="col-md-4">
+                <div className="col-md-4 position relative">
                     <label className="form-label">Selectează unitatea (PJ):</label>
                     <select
-                        className="form-select"
+                        className="form-select glass-select"
                         value={selectedPJ}
                         onChange={(e) => setSelectedPJ(e.target.value)}
                     >
@@ -168,7 +251,7 @@ const InspectorateDashboard: React.FC = () => {
                 <div className="col-md-4">
                     <label className="form-label">Selectează tabelul:</label>
                     <select
-                        className="form-select"
+                        className="form-select glass-select"
                         value={selectedTable}
                         onChange={(e) => setSelectedTable(e.target.value)}
                     >
@@ -178,13 +261,6 @@ const InspectorateDashboard: React.FC = () => {
                             </option>
                         ))}
                     </select>
-                </div>
-
-                <div className="col-md-4 d-flex justify-content-end">
-                    <button className="btn btn-outline-primary mt-3" onClick={toggleFullScreen}>
-                        <i className="bi bi-arrows-fullscreen me-1"></i>
-                        {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
-                    </button>
                 </div>
             </div>
 
@@ -210,13 +286,16 @@ const InspectorateDashboard: React.FC = () => {
                                 <tr>
                                     {columns.map((col) => (
                                         <th key={col.key} className="text-nowrap text-center align-middle">
-                                            {col.label}
+                                            {/* Split multi-line labels */}
+                                            {col.label.split('\n').map((line, index) => (
+                                                <div key={index}>{line}</div>
+                                            ))}
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.slice(1).map((row, rowIdx) => (
+                                {data.map((row, rowIdx) => (
                                     <tr key={rowIdx}>
                                         {columns.map((col) => (
                                             <td key={col.key} className="text-nowrap align-middle">
@@ -226,51 +305,122 @@ const InspectorateDashboard: React.FC = () => {
                                     </tr>
                                 ))}
                             </tbody>
-
                         </table>
                     </div>
 
-                    <div className="d-flex justify-content-end">
-                        <button className="btn btn-AI mb-4 me-2" style={{ backgroundColor: '#6610f2', color: 'white' }} onClick={handleVerifyWithGemini}>
-                            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                                <i className="bi bi-robot" style={{ fontSize: '1.5rem' }}></i> Sugestii AI
-                            </span>
-                        </button>
+                    <div className="d-flex justify-content-between align-items-center mt-3 flex-wrap mb-5">
+                        <div className="d-flex gap-2 mb-2">
+                            <BorderAnimationButton
+                                variant="outlined"
+                                onClick={toggleFullScreen}
+                                style={{
+                                    padding: '8px 16px',
+                                    borderWidth: '1px',
+                                    opacity: 0.85,
+                                }}
+                            >
+                                <i className={`bi ${isFullScreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'} me-1`}></i>
+                                {isFullScreen ? 'Ieșire ecran complet' : 'Ecran complet'}
+                            </BorderAnimationButton>
+                        </div>
 
-                        <button className="btn btn-success me-2 mb-4">
-                            <i className="bi bi-patch-check" style={{ marginRight: '5px' }}></i> Aprobare
-                        </button>
 
+                        <div className="d-flex gap-2 mb-2">
+                            <GradientButton
+                                className="btn-AI"
+                                onClick={handleVerifyWithGemini}
+                            >
+                                <i className="bi bi-robot me-2"></i> Sugestii AI
+                            </GradientButton>
+
+                            <GradientButton variant="outlined" onClick={handleExportExcel}>
+                                <i className="bi bi-file-earmark-arrow-down me-2"></i> Export
+                            </GradientButton>
+                        </div>
                     </div>
-                    {!isFullScreen ? (<div className="row mb-4">
-                        <div className="col-md-6 mb-3">
-                            <div className="card shadow border-0 h-100">
-                                <div className="card-body">
-                                    <h3 style={{ color: "#6610f2" }}>
-                                        A.I. <i className="bi bi-robot ms-2" style={{ fontSize: '1.5rem' }}></i>
-                                    </h3>
-                                    <p>
-                                        Utilizați sugestiile AI prin butonul aflat sub tabel, pentru a primi sugestii legate de corecții necesare în datele tale, folosind inteligența artificială!
-                                    </p>
+
+                    {!isFullScreen && (<div className="instructions-card mt-4 border rounded p-4 shadow mb-4" style={{ borderColor: '#dee2e6' }}>
+
+                        <h4 className="mb-3" style={{ color: '#6610f2' }}>
+                            <i className="bi bi-info-circle me-2"></i>Instrucțiuni importante
+                        </h4>
+
+                        <div className="row">
+                            <div className="col-md-6 mb-3">
+                                <div className="d-flex">
+                                    <div className="me-3" style={{ color: '#6610f2' }}>
+                                        <i className="bi bi-table fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 className="mb-1" style={{ fontWeight: 600 }}>Schimbare tabel</h6>
+                                        <p className="mb-0">Puteți selecta un alt tabel folosind meniul "Selectează tabelul" din partea de sus</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                                <div className="d-flex">
+                                    <div className="me-3" style={{ color: '#6610f2' }}>
+                                        <i className="bi bi-file-earmark-excel fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 className="mb-1" style={{ fontWeight: 600 }}>Export Excel</h6>
+                                        <p className="mb-0">Apăsați butonul "Export" pentru a descărca tabelul curent în format Excel</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                                <div className="d-flex">
+                                    <div className="me-3" style={{ color: '#6610f2' }}>
+                                        <i className="bi bi-arrow-clockwise fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 className="mb-1" style={{ fontWeight: 600 }}>Schimbare PJ</h6>
+                                        <p className="mb-0">
+                                            Selectați PJ-ul dorit cu meniul "Selectează unitatea (PJ)" din partea de sus
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                                <div className="d-flex">
+                                    <div className="me-3" style={{ color: '#6610f2' }}>
+                                        <i className="bi bi-arrows-fullscreen fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 className="mb-1" style={{ fontWeight: 600 }}>Mod ecran complet</h6>
+                                        <p className="mb-0">Folosiți butonul "Full Screen" pentru vizualizare optimă pe tot ecranul</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-md-6">
+                                <div className="d-flex">
+                                    <div className="me-3" style={{ color: '#6610f2' }}>
+                                        <i className="bi bi-robot fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 className="mb-1" style={{ fontWeight: 600 }}>Asistență AI</h6>
+                                        <p className="mb-0">Folosiți "Sugestii AI" pentru detectarea posibilelor greșeli</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-md-6">
+                                <div className="d-flex">
+                                    <div className="me-3" style={{ color: '#6610f2' }}>
+                                        <i className="bi bi-chat-dots fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 className="mb-1" style={{ fontWeight: 600 }}>Comunicare Școli</h6>
+                                        <p className="mb-0">Utilizați funcția de chat pentru comunicarea cu școlile</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-6 mb-3">
-                            <div className="card shadow border-0 h-100">
-                                <div className="card-body">
-                                    <h3 style={{ color: "#6f42c1" }}>
-                                        Chat <i className="bi bi-chat-dots ms-2"></i>
-                                    </h3>
-                                    <p>
-                                        Utilizați funcția de chat găsită în partea de jos-dreapta a ecranului pentru a comunica cu inspectoratul școlar județean!
-                                        Puteți primi sau trimite mesaje către această instituție.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>) : null}
-
-
+                    </div>)}
                 </>
             )}
 
@@ -308,18 +458,17 @@ const InspectorateDashboard: React.FC = () => {
                         justifyContent: 'center'
                     }}
                 >
-                    <Button variant="secondary" onClick={() => setShowModal(false)} style={{
+                    <GradientButton onClick={() => setShowModal(false)} style={{
                         backgroundColor: '#6f42c1', color: "white"
                     }}>
                         Închide
-                    </Button>
+                    </GradientButton>
                 </Modal.Footer>
             </Modal>
 
             {!isFullScreen ? (user?.pj && user?.email && (
                 <Messaging key={selectedPJ} pj={selectedPJ} />
             )) : null}
-
         </div>
     );
 };
