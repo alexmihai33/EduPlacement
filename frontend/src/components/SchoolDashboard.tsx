@@ -220,6 +220,7 @@ const SchoolDashboard: React.FC = () => {
   const renderTableRows = () => {
     return data.map((row, rowIndex) => (
       <tr key={rowIndex}>
+        <td className="row-number-cell">{rowIndex + 1}</td>
         {editableColumns.map((col) => (
           <td key={col.key}>
             <input
@@ -268,8 +269,9 @@ const SchoolDashboard: React.FC = () => {
             ${JSON.stringify(userTableData, null, 2)}
             Corectează-le dupa următoarele reguli: 
             1. valoare pentru specializare trebuie să fie "Filologie", "Matematică-Informatică", "Mecanică", "Arte Vizuale", "Engleză-Franceză", "Agricolă", "Psihologie", "Schi-Alpinism"
-            2. numărul de copii pentru oricare dintre valori (propus/existent) trebuie să nu depășească 200
-            3. cuvintele trebuie să fie corecte din punct de vedere gramatical în limba română (dacă observi greșeli, punctează-le)
+            2. numărul de copii pentru oricare dintre valori (propus/existent) trebuie sa fie intre 5 si 200 - NU SE APLICA PENTRU VALORI NULE, NU LE LUA IN CONSIDERARE PE ACELEA
+            3. numărul de copii pentru oricare dintre valori (propus/existent) trebuie să fie intre 2 si 10 - NU SE APLICA PENTRU VALORI NULE, NU LE LUA IN CONSIDERARE PE ACELEA
+            4. cuvintele trebuie să fie corecte din punct de vedere gramatical în limba română (dacă observi greșeli, punctează-le)
             Raspunde doar cu ce valori ai schimba din input și de ce (răspuns succint)
             Exemplu format răspuns (fiecare sugestie urmărește acest format): "Pe linia a 2-a, coloana filieră, valoarea ... ar trebui schimbata in ... | justificare: ..."
             Notite suplimentare: Cand denumesti coloana, NU PUNE NUMELE TABELEI (nrCopiiExistentAnteprescolar) deoarce nu este lizibil, ci transforma in valoarea de pe prima linia din coloana (Nr Copii Existent Anteprescolar) !FOARTE IMPORTANT
@@ -310,6 +312,7 @@ const SchoolDashboard: React.FC = () => {
             <table className="table table-bordered">
               <thead>
                 <tr>
+                  <th className="row-number-header">Nr.</th>
                   {editableColumns.map((col) => (
                     <th key={col.key}>
                       {col.label.split('\n').map((line, index) => (
@@ -542,11 +545,11 @@ const SchoolDashboard: React.FC = () => {
             justifyContent: 'center'
           }}
         >
-          <Button onClick={() => setShowModal(false)} style={{
+          <GradientButton onClick={() => setShowModal(false)} style={{
             backgroundColor: '#6f42c1', color: "white"
           }}>
             Închide
-          </Button>
+          </GradientButton>
         </Modal.Footer>
       </Modal>
 
