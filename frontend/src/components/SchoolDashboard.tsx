@@ -1,83 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../App.css';
 import logo from "../assets/logo.png";
-import { Modal } from 'react-bootstrap';
-import { GoogleGenAI } from "@google/genai";
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import Messaging from './Messaging';
-import { Button } from "@mui/material"
-import { styled } from '@mui/material/styles';
+import GeminiVerification from './GeminiVerification';
+import GradientButton from './buttons/GradientButton';
+import BorderAnimationButton from './buttons/BorderAnimationButton';
 
 type TableRow = {
   id: number;
   [key: string]: string | number | null;
 };
-const GradientButton = styled(Button)({
-  background: 'linear-gradient(45deg, #6610f2 30%, #9d4edd 90%)',
-  border: 0,
-  borderRadius: '10px',
-  color: 'white',
-  padding: '12px 28px',
-  fontWeight: 700,
-  letterSpacing: '1px',
-  boxShadow: '0 3px 5px 2px rgba(102, 16, 242, .3)',
-  backgroundSize: '200% auto',
-  transition: '0.5s',
-  '&:hover': {
-    backgroundPosition: 'right center',
-    boxShadow: '0 5px 10px 3px rgba(102, 16, 242, .4)',
-    transform: 'translateY(-2px)'
-  },
-  '&:active': {
-    transform: 'translateY(0)'
-  }
-});
-
-const BorderAnimationButton = styled(Button)({
-  backgroundColor: 'transparent',
-  border: '2px solid transparent',
-  borderRadius: '8px',
-  color: '#6610f2',
-  padding: '12px 28px',
-  fontWeight: 700,
-  position: 'relative',
-  transition: 'all 0.4s ease',
-  '&:hover': {
-    backgroundColor: 'rgba(102, 16, 242, 0.05)',
-    color: '#4d0cb8'
-  },
-  '&::before, &::after': {
-    content: '""',
-    position: 'absolute',
-    width: '0',
-    height: '2px',
-    backgroundColor: '#6610f2',
-    transition: 'all 0.4s ease'
-  },
-  '&::before': {
-    top: 0,
-    left: 0,
-  },
-  '&::after': {
-    bottom: 0,
-    right: 0,
-  },
-  '&:hover::before, &:hover::after': {
-    width: '100%'
-  }
-});
 
 const SchoolDashboard: React.FC = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [columns, setColumns] = useState<{ key: string; label: string }[]>([]);
   const [selectedTable, setSelectedTable] = useState<'table1a1' | 'table1a2' | 'table1b'>('table1a1');
   const [data, setData] = useState<TableRow[]>([]);
-  const [loading, setLoading] = useState(false); // To handle the loading state
-  const [aiResponse, setAiResponse] = useState<string | null>(null); // To store AI response
-  const [showModal, setShowModal] = useState(false); // For controlling modal visibility\
   const tableRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth0()
 
@@ -235,8 +176,6 @@ const SchoolDashboard: React.FC = () => {
             />
           </td>
         ))}
-
-        {/* Delete button cell */}
         <td style={{ whiteSpace: 'nowrap' }}>
           {row.id >= 0 && (
             <button
@@ -250,43 +189,6 @@ const SchoolDashboard: React.FC = () => {
         </td>
       </tr>
     ));
-  };
-
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-  const ai = new GoogleGenAI({ apiKey: apiKey });
-
-  const handleVerifyWithGemini = async () => {
-    setShowModal(true)
-    setLoading(true)
-
-    const userTableData = data;
-
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
-      contents: `
-            Pentru următoarele datele
-            ${JSON.stringify(userTableData, null, 2)}
-            Corectează-le dupa următoarele reguli: 
-            1. valoare pentru specializare trebuie să fie "Filologie", "Matematică-Informatică", "Mecanică", "Arte Vizuale", "Engleză-Franceză", "Agricolă", "Psihologie", "Schi-Alpinism"
-            2. numărul de copii pentru oricare dintre valori (propus/existent) trebuie sa fie intre 5 si 200 - NU SE APLICA PENTRU VALORI NULE, NU LE LUA IN CONSIDERARE PE ACELEA
-            3. numărul de copii pentru oricare dintre valori (propus/existent) trebuie să fie intre 2 si 10 - NU SE APLICA PENTRU VALORI NULE, NU LE LUA IN CONSIDERARE PE ACELEA
-            4. cuvintele trebuie să fie corecte din punct de vedere gramatical în limba română (dacă observi greșeli, punctează-le)
-            Raspunde doar cu ce valori ai schimba din input și de ce (răspuns succint)
-            Exemplu format răspuns (fiecare sugestie urmărește acest format): "Pe linia a 2-a, coloana filieră, valoarea ... ar trebui schimbata in ... | justificare: ..."
-            Notite suplimentare: Cand denumesti coloana, NU PUNE NUMELE TABELEI (nrCopiiExistentAnteprescolar) deoarce nu este lizibil, ci transforma in valoarea de pe prima linia din coloana (Nr Copii Existent Anteprescolar) !FOARTE IMPORTANT
-            Nu pune stelute sau alte caractere la inceput de randuri. Nu include in justificare numarul regulii pe care ti-am spus-o. In plus, include un spatiu intre randuri.
-            Nu lua in considerare adjective - nu sugera schimbarea adjectivelor din feminin in masculin/vice-versa.
-            !Verifica cu atentie fiecare coloana pentru a observa care dintre acestea nu respecta regulile.
-            !Scrie in limba romana cu diacritice
-            `,
-    });
-
-    const aiResponse: any = response.text
-    console.log(response.text);
-    setLoading(false)
-    setAiResponse(aiResponse);
-
   };
 
   return (
@@ -327,22 +229,17 @@ const SchoolDashboard: React.FC = () => {
               <tbody>{renderTableRows()}</tbody>
             </table>
           </div>
-          <div className="d-flex justify-content-between align-items-center mt-3 flex-wrap mb-5">
+          <div className="d-flex justify-content-between align-items-center mt-4 flex-wrap mb-5">
             <div className="d-flex gap-2 mb-2">
               <BorderAnimationButton
-                variant="outlined"
                 onClick={toggleFullScreen}
-                style={{
-                  padding: '8px 16px',
-                  borderWidth: '1px',
-                  opacity: 0.85,
-                }}
+                icon={`${isFullScreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'}`}
+
               >
-                <i className={`bi ${isFullScreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'} me-1`}></i>
                 {isFullScreen ? 'Ieșire ecran complet' : 'Ecran complet'}
               </BorderAnimationButton>
+
               <BorderAnimationButton
-                variant="outlined"
                 onClick={() => {
                   const newRow: TableRow = { id: -Date.now() };
                   editableColumns.forEach(col => {
@@ -350,31 +247,28 @@ const SchoolDashboard: React.FC = () => {
                   });
                   setData(prev => [...prev, newRow]);
                 }}
-                style={{
-                  padding: '8px 16px',
-                  borderWidth: '1px',
-                  opacity: 0.85,
-                }}
+                icon="bi-plus-circle"
+
               >
-                <i className="bi bi-plus-circle me-1"></i> Adaugă rând
+                Adaugă rând
               </BorderAnimationButton>
             </div>
 
-    
             <div className="d-flex gap-2 mb-2">
+              <GeminiVerification tableData={data} />
+
               <GradientButton
-                className="btn-AI"
-                onClick={handleVerifyWithGemini}
+                onClick={handlePatchData}
+                icon="bi-bookmark-check"
               >
-                <i className="bi bi-robot me-2"></i> Sugestii AI
+                Save
               </GradientButton>
 
-              <GradientButton onClick={handlePatchData}>
-                <i className="bi bi-bookmark-check me-2"></i> Save
-              </GradientButton>
-
-              <GradientButton variant="outlined" onClick={handleExportExcel}>
-                <i className="bi bi-file-earmark-arrow-down me-2"></i> Export
+              <GradientButton
+                onClick={handleExportExcel}
+                icon="bi-file-earmark-arrow-down"
+              >
+                Export
               </GradientButton>
             </div>
           </div>
@@ -510,48 +404,6 @@ const SchoolDashboard: React.FC = () => {
           </div>
         </div>)}
       </div>
-
-      {/* Modal for AI Response */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered>
-        <Modal.Header closeButton style={{ background: 'linear-gradient(to right, #6f42c1, #b07fff)', color: 'white' }}>
-          <Modal.Title style={{ width: '100%', textAlign: 'center' }}>
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-              <i className="bi bi-robot" style={{ fontSize: '1.5rem' }}></i> Edu AI
-            </span>
-          </Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body style={{ backgroundColor: '#f5f0ff', maxHeight: '70vh', overflowY: 'auto', paddingBottom: '80px' }}>
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-              <Spinner animation="border" variant="primary" role="status" style={{ width: '4rem', height: '4rem' }} />
-              <p style={{ marginTop: '1rem', color: '#6f42c1', fontWeight: 'bold' }}>Se verifică răspunsul AI...</p>
-            </div>
-          ) : (
-            <pre style={{ whiteSpace: 'pre-wrap', backgroundColor: 'white', padding: '1rem', borderRadius: '10px' }}>
-              {aiResponse || "No AI response yet."}
-            </pre>
-          )}
-        </Modal.Body>
-
-        {/* Sticky Footer */}
-        <Modal.Footer
-          style={{
-            backgroundColor: '#f5f0ff',
-            position: 'sticky',
-            bottom: 0,
-            zIndex: 10,
-            borderTop: '1px solid #ddd',
-            justifyContent: 'center'
-          }}
-        >
-          <GradientButton onClick={() => setShowModal(false)} style={{
-            backgroundColor: '#6f42c1', color: "white"
-          }}>
-            Închide
-          </GradientButton>
-        </Modal.Footer>
-      </Modal>
 
       {!isFullScreen ? (user?.pj && user?.email && (
         <Messaging pj={user.pj} />

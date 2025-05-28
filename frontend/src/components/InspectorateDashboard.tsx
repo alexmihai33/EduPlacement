@@ -1,69 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import '../App.css';
-import { Modal, Spinner } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import logo from '../assets/logo.png';
-import { GoogleGenAI } from '@google/genai';
 import Messaging from './Messaging';
 import { useAuth0 } from '@auth0/auth0-react';
-import { Button } from "@mui/material"
-import { styled } from '@mui/material/styles';
-
-const GradientButton = styled(Button)({
-    background: 'linear-gradient(45deg, #6610f2 30%, #9d4edd 90%)',
-    border: 0,
-    borderRadius: '10px',
-    color: 'white',
-    padding: '12px 28px',
-    fontWeight: 700,
-    letterSpacing: '1px',
-    boxShadow: '0 3px 5px 2px rgba(102, 16, 242, .3)',
-    backgroundSize: '200% auto',
-    transition: '0.5s',
-    '&:hover': {
-        backgroundPosition: 'right center',
-        boxShadow: '0 5px 10px 3px rgba(102, 16, 242, .4)',
-        transform: 'translateY(-2px)'
-    },
-    '&:active': {
-        transform: 'translateY(0)'
-    }
-});
-
-const BorderAnimationButton = styled(Button)({
-    backgroundColor: 'transparent',
-    border: '2px solid transparent',
-    borderRadius: '8px',
-    color: '#6610f2',
-    padding: '12px 28px',
-    fontWeight: 700,
-    position: 'relative',
-    transition: 'all 0.4s ease',
-    '&:hover': {
-        backgroundColor: 'rgba(102, 16, 242, 0.05)',
-        color: '#4d0cb8'
-    },
-    '&::before, &::after': {
-        content: '""',
-        position: 'absolute',
-        width: '0',
-        height: '2px',
-        backgroundColor: '#6610f2',
-        transition: 'all 0.4s ease'
-    },
-    '&::before': {
-        top: 0,
-        left: 0,
-    },
-    '&::after': {
-        bottom: 0,
-        right: 0,
-    },
-    '&:hover::before, &:hover::after': {
-        width: '100%'
-    }
-});
+import GeminiVerification from './GeminiVerification';
+import BorderAnimationButton from './buttons/BorderAnimationButton';
+import GradientButton from './buttons/GradientButton';
 
 type TableRow = {
     id: number;
@@ -78,13 +23,12 @@ const tableOptions: Option[] = [
     { label: 'Tabel 1B', value: 'table1b' }
 ];
 
-// Format column labels the same way as in SchoolDashboard
 const formatColumnLabel = (key: string): string => {
     return key
-        .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-        .replace(/^./, s => s.toUpperCase()) // Capitalize first letter
-        .replace(/ Nr /g, ' Nr. ') // Add dot after Nr
-        .replace(/ Gr /g, ' Gr. '); // Add dot after Gr
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, s => s.toUpperCase()) 
+        .replace(/ Nr /g, ' Nr. ') 
+        .replace(/ Gr /g, ' Gr. '); 
 };
 
 const InspectorateDashboard: React.FC = () => {
@@ -95,8 +39,6 @@ const InspectorateDashboard: React.FC = () => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [loading, setLoading] = useState(false);
     const tableRef = useRef<HTMLDivElement>(null);
-    const [aiResponse, setAiResponse] = useState<string | null>(null);
-    const [showModal, setShowModal] = useState(false);
     const { user } = useAuth0()
 
     // Format columns using the same transformation as SchoolDashboard
@@ -163,44 +105,6 @@ const InspectorateDashboard: React.FC = () => {
             console.error('Error fetching data:', error);
         }
         setLoading(false);
-    };
-
-    const handleVerifyWithGemini = async () => {
-        setShowModal(true)
-        setLoading(true)
-
-        const userTableData = data;
-        console.log(JSON.stringify(data));
-
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-        const ai = new GoogleGenAI({ apiKey: apiKey });
-
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
-            contents: `
-            Pentru următoarele datele
-            ${JSON.stringify(userTableData, null, 2)}
-            Corectează-le dupa următoarele reguli: 
-             Corectează-le dupa următoarele reguli: 
-            1. valoare pentru specializare trebuie să fie "Filologie", "Matematică-Informatică", "Mecanică", "Arte Vizuale", "Engleză-Franceză", "Agricolă", "Psihologie", "Schi-Alpinism"
-            2. numărul de copii pentru oricare dintre valori (propus/existent) trebuie sa fie intre 5 si 200 - NU SE APLICA PENTRU VALORI NULE, NU LE LUA IN CONSIDERARE PE ACELEA
-            3. numărul de copii pentru oricare dintre valori (propus/existent) trebuie să fie intre 2 si 10 - NU SE APLICA PENTRU VALORI NULE, NU LE LUA IN CONSIDERARE PE ACELEA
-            4. cuvintele trebuie să fie corecte din punct de vedere gramatical în limba română (dacă observi greșeli, punctează-le)
-            Raspunde doar cu ce valori ai schimba din input și de ce (răspuns succint)
-            Exemplu format răspuns (fiecare sugestie urmărește acest format): "Pe linia a 2-a, coloana filieră, valoarea ... ar trebui schimbata in ... | justificare: ..."
-            Notite suplimentare: Cand denumesti coloana, NU PUNE NUMELE TABELEI (nrCopiiExistentAnteprescolar) deoarce nu este lizibil, ci transforma in valoarea de pe prima linia din coloana (Nr Copii Existent Anteprescolar) !FOARTE IMPORTANT
-            Nu pune stelute sau alte caractere la inceput de randuri. Nu include in justificare numarul regulii pe care ti-am spus-o. In plus, include un spatiu intre randuri.
-            Nu lua in considerare adjective - nu sugera schimbarea adjectivelor din feminin in masculin/vice-versa.
-            !Verifica cu atentie fiecare coloana pentru a observa care dintre acestea nu respecta regulile.
-            !Scrie in limba romana cu diacritice
-            `,
-        });
-
-        const aiResponse: any = response.text
-        console.log(response.text);
-        setLoading(false)
-        setAiResponse(aiResponse);
     };
 
     useEffect(() => {
@@ -298,7 +202,7 @@ const InspectorateDashboard: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                
+
                                 {data.map((row, rowIdx) => (
                                     <tr key={rowIdx}>
                                         <td className="row-number-cell">{rowIdx + 1}</td>
@@ -316,30 +220,22 @@ const InspectorateDashboard: React.FC = () => {
                     <div className="d-flex justify-content-between align-items-center mt-3 flex-wrap mb-5">
                         <div className="d-flex gap-2 mb-2">
                             <BorderAnimationButton
-                                variant="outlined"
                                 onClick={toggleFullScreen}
-                                style={{
-                                    padding: '8px 16px',
-                                    borderWidth: '1px',
-                                    opacity: 0.85,
-                                }}
+                                icon={isFullScreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'}
                             >
-                                <i className={`bi ${isFullScreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'} me-1`}></i>
                                 {isFullScreen ? 'Ieșire ecran complet' : 'Ecran complet'}
                             </BorderAnimationButton>
                         </div>
 
 
                         <div className="d-flex gap-2 mb-2">
-                            <GradientButton
-                                className="btn-AI"
-                                onClick={handleVerifyWithGemini}
-                            >
-                                <i className="bi bi-robot me-2"></i> Sugestii AI
-                            </GradientButton>
+                            <GeminiVerification tableData={data} />
 
-                            <GradientButton variant="outlined" onClick={handleExportExcel}>
-                                <i className="bi bi-file-earmark-arrow-down me-2"></i> Export
+                            <GradientButton
+                                onClick={handleExportExcel}
+                                icon="bi-file-earmark-arrow-down"
+                            >
+                                Export
                             </GradientButton>
                         </div>
                     </div>
@@ -428,48 +324,6 @@ const InspectorateDashboard: React.FC = () => {
                     </div>)}
                 </>
             )}
-
-            {/* Modal for AI Response */}
-            <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered>
-                <Modal.Header closeButton style={{ background: 'linear-gradient(to right, #6f42c1, #b07fff)', color: 'white' }}>
-                    <Modal.Title style={{ width: '100%', textAlign: 'center' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                            <i className="bi bi-robot" style={{ fontSize: '1.5rem' }}></i> Edu AI
-                        </span>
-                    </Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body style={{ backgroundColor: '#f5f0ff', maxHeight: '70vh', overflowY: 'auto', paddingBottom: '80px' }}>
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-                            <Spinner animation="border" variant="primary" role="status" style={{ width: '4rem', height: '4rem' }} />
-                            <p style={{ marginTop: '1rem', color: '#6f42c1', fontWeight: 'bold' }}>Se verifică răspunsul AI...</p>
-                        </div>
-                    ) : (
-                        <pre style={{ whiteSpace: 'pre-wrap', backgroundColor: 'white', padding: '1rem', borderRadius: '10px' }}>
-                            {aiResponse || "No AI response yet."}
-                        </pre>
-                    )}
-                </Modal.Body>
-
-                {/* Sticky Footer */}
-                <Modal.Footer
-                    style={{
-                        backgroundColor: '#f5f0ff',
-                        position: 'sticky',
-                        bottom: 0,
-                        zIndex: 10,
-                        borderTop: '1px solid #ddd',
-                        justifyContent: 'center'
-                    }}
-                >
-                    <GradientButton onClick={() => setShowModal(false)} style={{
-                        backgroundColor: '#6f42c1', color: "white"
-                    }}>
-                        Închide
-                    </GradientButton>
-                </Modal.Footer>
-            </Modal>
 
             {!isFullScreen ? (user?.pj && user?.email && (
                 <Messaging key={selectedPJ} pj={selectedPJ} />
