@@ -55,14 +55,14 @@ const GeminiVerification: React.FC<GeminiVerificationProps> = ({ tableData }) =>
                 onClick={handleVerifyWithGemini}
                 icon="bi-robot"
             >
-                A.I. HELP
+                EDU A.I.
             </GradientButton>
 
             <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered>
                 <Modal.Header closeButton style={{ background: 'linear-gradient(to right, #6f42c1, #b07fff)', color: 'white' }}>
                     <Modal.Title style={{ width: '100%', textAlign: 'center' }}>
                         <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                            <i className="bi bi-robot" style={{ fontSize: '1.5rem' }}></i> Edu AI
+                            <i className="bi bi-robot" style={{ fontSize: '1.5rem' }}></i> EDU A.I.
                         </span>
                     </Modal.Title>
                 </Modal.Header>

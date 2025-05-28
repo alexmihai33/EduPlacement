@@ -303,7 +303,7 @@ const SchoolDashboard: React.FC = () => {
                     <i className="bi bi-robot me-2"></i>Asistent AI
                   </h3>
                   <p className="mb-0">
-                    Utilizați sugestiile AI prin butonul aflat sub tabel, pentru corectarea mai usoara a datelor.
+                    Utilizați sugestiile AI prin butonul "EDU A.I." aflat sub tabel, pentru corectarea mai usoara a datelor.
                   </p>
                 </div>
               </div>
@@ -385,7 +385,7 @@ const SchoolDashboard: React.FC = () => {
                 </div>
                 <div>
                   <h6 className="mb-1" style={{ fontWeight: 600 }}>Asistență AI</h6>
-                  <p className="mb-0">Folosiți "Sugestii AI" pentru corectări automate și sfaturi</p>
+                  <p className="mb-0">Folosiți "EDU A.I." pentru corectări automate și sfaturi</p>
                 </div>
               </div>
             </div>
