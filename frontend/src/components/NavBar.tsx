@@ -65,7 +65,7 @@ const NavBar = () => {
         fixed="top"
       >
         <Container>
-          <NavbarBrand className="logo" />
+          <NavbarBrand className="logo" href="/" />
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
             <Nav className="me-auto" navbar>
