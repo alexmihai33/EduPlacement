@@ -197,7 +197,7 @@ const SchoolDashboard: React.FC = () => {
     <div className={`container-fluid school-dashboard ${isFullScreen ? 'fullscreen' : ''}`} ref={tableRef}>
       <div className="text-center mb-5 mt-5">
         <img className="mb-3 app-logo" src={logo} alt="Logo" width="60" />
-        <h1 className="mb-4">Tabele Incadrare</h1>
+        <h1 className="mb-4">Tabele Încadrare</h1>
         <h2></h2>
       </div>
 
