@@ -55,7 +55,6 @@ const NavBar = () => {
 
   const getNavLinkClass = ({ isActive }: any) =>
     isActive ? "nav-link active-link" : "nav-link";
-
   return (
     <div className="nav-container">
       <Navbar 
@@ -68,6 +67,14 @@ const NavBar = () => {
           <NavbarBrand className="logo" href="/" />
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
+          <NavItem>
+                <RouterNavLink
+                  to="/"
+                  className={getNavLinkClass}
+                >
+                  Home
+                </RouterNavLink>
+              </NavItem>
             <Nav className="me-auto" navbar>
               {isAuthenticated?(<NavItem>
                 <RouterNavLink
@@ -85,14 +92,6 @@ const NavBar = () => {
                   Profile
                 </RouterNavLink>
               </NavItem>) : null}
-              <NavItem>
-                <RouterNavLink
-                  to="/"
-                  className={getNavLinkClass}
-                >
-                  Home
-                </RouterNavLink>
-              </NavItem>
               <NavItem>
                 <RouterNavLink
                   to="/news"
@@ -120,13 +119,13 @@ const NavBar = () => {
             </Nav>
 
             <Nav className="d-none d-md-block" navbar>
-              {!isAuthenticated && (
+              {!isAuthenticated && ( 
                 <NavItem>
                   <GradientButton
                     id="qsLoginBtn"
                     color="primary"
-                    className="btn-margin login-btn" // Added class
-                    onClick={() => loginWithRedirect()}
+                    className="btn-margin login-btn"
+                    onClick={() => loginWithRedirect()} //funcție din useAuth0()
                   >
                     Log in
                   </GradientButton>
