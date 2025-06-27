@@ -17,8 +17,8 @@ const GeminiVerification: React.FC<GeminiVerificationProps> = ({ tableData }) =>
         setLoading(true);
 
         try {
-            const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-            const ai = new GoogleGenAI({ apiKey: apiKey });
+            //const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+            const ai = new GoogleGenAI({ apiKey: "AIzaSyAWddg76_jU-QscBqiZy12NNzUWU7hj6PQ" });
 
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash-preview-04-17",
@@ -74,7 +74,7 @@ const GeminiVerification: React.FC<GeminiVerificationProps> = ({ tableData }) =>
                             <p style={{ marginTop: '1rem', color: '#6f42c1', fontWeight: 'bold' }}>Se verifică răspunsul AI...</p>
                         </div>
                     ) : (
-                        <pre style={{ whiteSpace: 'pre-wrap', backgroundColor: 'white', padding: '1rem', borderRadius: '10px' }}>
+                        <pre style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f0ff', padding: '1rem', borderRadius: '10px' }}>
                             {aiResponse || "No AI response yet."}
                         </pre>
                     )}

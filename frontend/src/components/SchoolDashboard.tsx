@@ -95,9 +95,11 @@ const SchoolDashboard: React.FC = () => {
 
   const handleExportExcel = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/export/${selectedTable}?pj=${user?.pj}`, {
+      //construire request http cu axios
+      const response = await axios.get(`https://eduplacement-4.onrender.com/api/export/${selectedTable}?pj=${user?.pj}`, {
         responseType: 'blob'
       })
+      //creare obiect pentru export
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -105,6 +107,7 @@ const SchoolDashboard: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      //depanare erori si alertarea utilizatorului
     } catch (error) {
       console.error('Export failed:', error);
       window.alert("Unable to export table");
@@ -119,10 +122,9 @@ const SchoolDashboard: React.FC = () => {
       return;
     }
 
-    // Add pj to all rows
-    const dataWithPj = data.map(row => ({ ...row, pj: userPj }));
+    const dataWithPj = data.map(row => ({ ...row, pj: userPj })); //pj = persoana juridica
 
-    // Separate new and existing rows
+    //separare new/existing
     const newRows = dataWithPj.filter(row => row.id < 0).map(({ id, ...rest }) => rest);
     const existingRows = dataWithPj.filter(row => row.id >= 0);
 
@@ -130,13 +132,13 @@ const SchoolDashboard: React.FC = () => {
       // POST new rows
       if (newRows.length > 0) {
         await Promise.all(
-          newRows.map(row => axios.post(`http://localhost:8080/api/${selectedTable}`, row))
+          newRows.map(row => axios.post(`https://eduplacement-4.onrender.com/api/${selectedTable}`, row))
         );
       }
 
       // PATCH existing rows
       if (existingRows.length > 0) {
-        await axios.patch(`http://localhost:8080/api/${selectedTable}`, existingRows);
+        await axios.patch(`https://eduplacement-4.onrender.com/api/${selectedTable}`, existingRows);
       }
     } catch (error) {
       console.error('Eroare la salvarea datelor:', error);
@@ -148,7 +150,7 @@ const SchoolDashboard: React.FC = () => {
     if (!window.confirm('Ești sigur că dorești să ștergi acest rând?')) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/${selectedTable}/${id}`);
+      await axios.delete(`https://eduplacement-4.onrender.com/api/${selectedTable}/${id}`);
       setData(prevData => prevData.filter(row => row.id !== id));
     } catch (error) {
       console.error('Eroare la ștergerea rândului:', error);
@@ -195,7 +197,7 @@ const SchoolDashboard: React.FC = () => {
     <div className={`container-fluid school-dashboard ${isFullScreen ? 'fullscreen' : ''}`} ref={tableRef}>
       <div className="text-center mb-5 mt-5">
         <img className="mb-3 app-logo" src={logo} alt="Logo" width="60" />
-        <h1 className="mb-4">Tabele Incadrare | PJ: {user?.pj}</h1>
+        <h1 className="mb-4">Tabele Incadrare</h1>
         <h2></h2>
       </div>
 

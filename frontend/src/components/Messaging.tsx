@@ -39,7 +39,7 @@ const Messaging: React.FC<MessagingProps> = ({ pj }) => {
 
     const fetchMessages = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/messages`, {
+            const response = await axios.get(`https://eduplacement-4.onrender.com/api/messages`, {
                 params: { pj }
             });
             setMessages(response.data);
@@ -50,25 +50,25 @@ const Messaging: React.FC<MessagingProps> = ({ pj }) => {
     };
 
     const connectWebSocket = () => {
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('https://eduplacement-4.onrender.com/ws'); //definire port
         const client = new Client({
             webSocketFactory: () => socket,
-            reconnectDelay: 5000,
-            onConnect: () => {
+            reconnectDelay: 5000, //numar milisecunde
+            onConnect: () => { //abonare la schimbari
                 client.subscribe(`/topic/messages/${pj}`, (message: IMessage) => {
                     const msg: Message = JSON.parse(message.body);
                     if (msg.pj === pj) {
-                        setMessages(prev => [...prev, msg]);
-                        scrollToBottom();
+                        setMessages(prev => [...prev, msg]); //setarea ultimelor mesaje
+                        scrollToBottom(); //efect vizual de scroll
                     }
                 });
             },
-            onStompError: (frame) => {
+            onStompError: (frame) => { //depanare
                 console.error('Broker error', frame.headers['message']);
             }
         });
 
-        client.activate();
+        client.activate(); //activare client
         stompClientRef.current = client;
     };
 
