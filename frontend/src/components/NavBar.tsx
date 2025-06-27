@@ -57,33 +57,33 @@ const NavBar = () => {
     isActive ? "nav-link active-link" : "nav-link";
   return (
     <div className="nav-container">
-      <Navbar 
+      <Navbar
         className="custom-navbar" // Added custom class
-        expand="md" 
-        container={false} 
+        expand="md"
+        container={false}
         fixed="top"
       >
         <Container>
           <NavbarBrand className="logo" href="/" />
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
-          <NavItem>
-                <RouterNavLink
-                  to="/"
-                  className={getNavLinkClass}
-                >
-                  Home
-                </RouterNavLink>
-              </NavItem>
             <Nav className="me-auto" navbar>
-              {isAuthenticated?(<NavItem>
+              <NavItem>
+              <RouterNavLink
+                to="/"
+                className={getNavLinkClass}
+              >
+                Home
+              </RouterNavLink>
+            </NavItem>
+              {isAuthenticated ? (<NavItem>
                 <RouterNavLink
                   to="/dashboard"
                   className={getNavLinkClass}
                 >
                   Dashboard
                 </RouterNavLink>
-              </NavItem>):null}
+              </NavItem>) : null}
               {isAuthenticated ? (<NavItem>
                 <RouterNavLink
                   to="/profile"
@@ -119,7 +119,7 @@ const NavBar = () => {
             </Nav>
 
             <Nav className="d-none d-md-block" navbar>
-              {!isAuthenticated && ( 
+              {!isAuthenticated && (
                 <NavItem>
                   <GradientButton
                     id="qsLoginBtn"
@@ -167,7 +167,7 @@ const NavBar = () => {
                   <GradientButton
                     id="qsLoginBtn"
                     color="primary"
-                  
+
                     className="login-btn" // Added class
                     onClick={() => loginWithRedirect({})}
                   >
