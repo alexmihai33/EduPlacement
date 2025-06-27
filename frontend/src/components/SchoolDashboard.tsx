@@ -34,7 +34,7 @@ const SchoolDashboard: React.FC = () => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:8080/api/${selectedTable}/by-pj`, {
+        const response = await axios.get(`https://eduplacement-4.onrender.com/api/${selectedTable}/by-pj`, {
           params: { pj: userPj },
         });
 
