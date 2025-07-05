@@ -23,8 +23,6 @@ const App = () => {
   if (isLoading) {
     return <Loading />;
   }
-
-
   return (
 
     <BrowserRouter>
