@@ -3,8 +3,11 @@
 # Description - what does EduPlacement solve?
 
 This is a full-stack application that is meant to solve a specific issue in the romanian educational system.
+
 Every year, there is a process happening called the inclusion project in pre-university education. 
+
 This process is meant to help assign teachers to schools and their respective classes, and it is a complicated procedure that involves the schools and the school inspectorate from a county.
+
 The schools need to complete a series of tables with a high load of information - the information inside the tables come from the ministry of education. Currently, the schools complete these tables in excel format.
 After completion, the schools send the tables (currently, printed, mostly in physical form) towards the inspectorate. The inspectorate's scope is to validate the data sent by the schools.
 The current approach creates a high ammount of extra work for the people involved in the process, as the inspectorate needs to verify each table on physical paper, and the data is decentralized.
