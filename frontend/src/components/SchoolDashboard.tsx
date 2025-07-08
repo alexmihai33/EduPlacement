@@ -50,7 +50,6 @@ const SchoolDashboard: React.FC = () => {
 
           setColumns(dynamicColumns);
 
-          // Add missing keys as empty string
           const cleanedResult = result.map((row: TableRow) => {
             const newRow: TableRow = { ...row };
             dynamicColumns.forEach(col => {

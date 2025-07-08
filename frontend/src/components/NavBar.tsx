@@ -58,7 +58,7 @@ const NavBar = () => {
   return (
     <div className="nav-container">
       <Navbar
-        className="custom-navbar" // Added custom class
+        className="custom-navbar"
         expand="md"
         container={false}
         fixed="top"
@@ -125,7 +125,7 @@ const NavBar = () => {
                     id="qsLoginBtn"
                     color="primary"
                     className="btn-margin login-btn"
-                    onClick={() => loginWithRedirect()} //funcție din useAuth0()
+                    onClick={() => loginWithRedirect()}
                   >
                     Log in
                   </GradientButton>
@@ -141,7 +141,7 @@ const NavBar = () => {
                       width="50"
                     />
                   </DropdownToggle>
-                  <DropdownMenu className="dropdown-purple"> {/* Added class */}
+                  <DropdownMenu className="dropdown-purple">
                     <DropdownItem header>{user?.name}</DropdownItem>
                     <DropdownItem
                       tag={RouterNavLink}
@@ -168,7 +168,7 @@ const NavBar = () => {
                     id="qsLoginBtn"
                     color="primary"
 
-                    className="login-btn" // Added class
+                    className="login-btn"
                     onClick={() => loginWithRedirect({})}
                   >
                     Log in

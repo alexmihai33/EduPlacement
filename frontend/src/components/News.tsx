@@ -1,7 +1,6 @@
 import logo from "../assets/logo.png";
 
 const News = () => {
-    // Exemplu de date pentru știri cu imagini
     const newsArticles = [
       {
         title: 'Reforma învățământului - ce se schimbă în 2025?',

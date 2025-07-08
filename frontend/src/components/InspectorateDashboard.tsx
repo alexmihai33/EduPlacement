@@ -41,13 +41,12 @@ const InspectorateDashboard: React.FC = () => {
     const tableRef = useRef<HTMLDivElement>(null);
     const { user } = useAuth0()
 
-    // Format columns using the same transformation as SchoolDashboard
     const columns = (() => {
         if (data.length === 0) return [];
 
         const firstRow = data[0];
         return Object.keys(firstRow)
-            .filter(key => key !== 'id') // Exclude id column
+            .filter(key => key !== 'id')
             .map((key) => ({
                 key,
                 label: formatColumnLabel(key)
@@ -193,7 +192,6 @@ const InspectorateDashboard: React.FC = () => {
                                     <th className="row-number-header">Nr.</th>
                                     {columns.map((col) => (
                                         <th key={col.key} className="text-nowrap text-center align-middle">
-                                            {/* Split multi-line labels */}
                                             {col.label.split('\n').map((line, index) => (
                                                 <div key={index}>{line}</div>
                                             ))}

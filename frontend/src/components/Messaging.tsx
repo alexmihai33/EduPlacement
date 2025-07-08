@@ -25,7 +25,6 @@ const Messaging: React.FC<MessagingProps> = ({ pj }) => {
     const { user } = useAuth0();
     const stompClientRef = useRef<Client | null>(null);
 
-    // Initial fetch + socket connect
     useEffect(() => {
         if (isOpen) {
             fetchMessages();
@@ -50,25 +49,25 @@ const Messaging: React.FC<MessagingProps> = ({ pj }) => {
     };
 
     const connectWebSocket = () => {
-        const socket = new SockJS('http://localhost:8080/ws'); //definire port
+        const socket = new SockJS('http://localhost:8080/ws');
         const client = new Client({
             webSocketFactory: () => socket,
-            reconnectDelay: 5000, //numar milisecunde
-            onConnect: () => { //abonare la schimbari
+            reconnectDelay: 5000, 
+            onConnect: () => { 
                 client.subscribe(`/topic/messages/${pj}`, (message: IMessage) => {
                     const msg: Message = JSON.parse(message.body);
                     if (msg.pj === pj) {
-                        setMessages(prev => [...prev, msg]); //setarea ultimelor mesaje
-                        scrollToBottom(); //efect vizual de scroll
+                        setMessages(prev => [...prev, msg]); 
+                        scrollToBottom(); 
                     }
                 });
             },
-            onStompError: (frame) => { //depanare
+            onStompError: (frame) => { 
                 console.error('Broker error', frame.headers['message']);
             }
         });
 
-        client.activate(); //activare client
+        client.activate(); 
         stompClientRef.current = client;
     };
 
