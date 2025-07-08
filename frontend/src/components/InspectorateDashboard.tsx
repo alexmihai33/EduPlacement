@@ -56,7 +56,7 @@ const InspectorateDashboard: React.FC = () => {
 
     const handleExportExcel = async () => {
         try {
-            const response = await axios.get(`https://eduplacement-4.onrender.com/api/export/${selectedTable}?pj=${selectedPJ}`, {
+            const response = await axios.get(`http://localhost:8080/api/export/${selectedTable}?pj=${selectedPJ}`, {
                 responseType: 'blob'
             })
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -74,7 +74,7 @@ const InspectorateDashboard: React.FC = () => {
 
     const fetchSchoolOptions = async () => {
         try {
-            const response = await axios.get(`https://eduplacement-4.onrender.com/api/${selectedTable}/distinct-pjs`);
+            const response = await axios.get(`http://localhost:8080/api/${selectedTable}/distinct-pjs`);
             const options = response.data.map((pj: string) => ({
                 label: pj,
                 value: pj
@@ -92,7 +92,7 @@ const InspectorateDashboard: React.FC = () => {
         if (!selectedPJ) return;
         setLoading(true);
         try {
-            const response = await axios.get(`https://eduplacement-4.onrender.com/api/${selectedTable}/by-pj?pj=${selectedPJ}`);
+            const response = await axios.get(`http://localhost:8080/api/${selectedTable}/by-pj?pj=${selectedPJ}`);
             const cleaned = response.data.map((row: TableRow) => {
                 const newRow: TableRow = { ...row };
                 Object.keys(newRow).forEach((key) => {

@@ -34,16 +34,15 @@ const SchoolDashboard: React.FC = () => {
       }
 
       try {
-        const response = await axios.get(`https://eduplacement-4.onrender.com/api/${selectedTable}/by-pj`, {
+        const response = await axios.get(`http://localhost:8080/api/${selectedTable}/by-pj`, {
           params: { pj: userPj },
         });
 
         const result = response.data;
 
-        // Compute columns from API result keys (exclude "id" or any unwanted keys)
         if (result.length > 0) {
           const dynamicColumns = Object.keys(result[0])
-            .filter(key => key !== 'id')  // Exclude columns you don’t want displayed
+            .filter(key => key !== 'id')
             .map(key => ({
               key,
               label: key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())
@@ -95,11 +94,9 @@ const SchoolDashboard: React.FC = () => {
 
   const handleExportExcel = async () => {
     try {
-      //construire request http cu axios
-      const response = await axios.get(`https://eduplacement-4.onrender.com/api/export/${selectedTable}?pj=${user?.pj}`, {
+      const response = await axios.get(`http://localhost:8080/api/export/${selectedTable}?pj=${user?.pj}`, {
         responseType: 'blob'
       })
-      //creare obiect pentru export
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -107,7 +104,6 @@ const SchoolDashboard: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      //depanare erori si alertarea utilizatorului
     } catch (error) {
       console.error('Export failed:', error);
       window.alert("Unable to export table");
@@ -122,23 +118,20 @@ const SchoolDashboard: React.FC = () => {
       return;
     }
 
-    const dataWithPj = data.map(row => ({ ...row, pj: userPj })); //pj = persoana juridica
+    const dataWithPj = data.map(row => ({ ...row, pj: userPj })); 
 
-    //separare new/existing
     const newRows = dataWithPj.filter(row => row.id < 0).map(({ id, ...rest }) => rest);
     const existingRows = dataWithPj.filter(row => row.id >= 0);
 
     try {
-      // POST new rows
       if (newRows.length > 0) {
         await Promise.all(
-          newRows.map(row => axios.post(`https://eduplacement-4.onrender.com/api/${selectedTable}`, row))
+          newRows.map(row => axios.post(`http://localhost:8080/api/${selectedTable}`, row))
         );
       }
 
-      // PATCH existing rows
       if (existingRows.length > 0) {
-        await axios.patch(`https://eduplacement-4.onrender.com/api/${selectedTable}`, existingRows);
+        await axios.patch(`http://localhost:8080/api/${selectedTable}`, existingRows);
       }
     } catch (error) {
       console.error('Eroare la salvarea datelor:', error);
@@ -150,7 +143,7 @@ const SchoolDashboard: React.FC = () => {
     if (!window.confirm('Ești sigur că dorești să ștergi acest rând?')) return;
 
     try {
-      await axios.delete(`https://eduplacement-4.onrender.com/api/${selectedTable}/${id}`);
+      await axios.delete(`http://localhost:8080/api/${selectedTable}/${id}`);
       setData(prevData => prevData.filter(row => row.id !== id));
     } catch (error) {
       console.error('Eroare la ștergerea rândului:', error);
@@ -279,7 +272,6 @@ const SchoolDashboard: React.FC = () => {
         {!isFullScreen && (
           <div className="col-md-3">
             <div className="menu">
-              {/* Modern Card with Glass Effect */}
               <div className="card glass-card mb-4 border-0">
                 <div className="card-body">
                   <h4 className="mb-3" style={{ color: '#6610f2' }}>Lista Tabele</h4>
@@ -298,7 +290,6 @@ const SchoolDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Modern Glass Cards */}
               <div className="card glass-card border-0 mb-4">
                 <div className="card-body">
                   <h3 style={{ color: "#6610f2" }}>

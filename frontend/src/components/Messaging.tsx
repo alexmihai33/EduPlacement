@@ -39,7 +39,7 @@ const Messaging: React.FC<MessagingProps> = ({ pj }) => {
 
     const fetchMessages = async () => {
         try {
-            const response = await axios.get(`https://eduplacement-4.onrender.com/api/messages`, {
+            const response = await axios.get(`http://localhost:8080/api/messages`, {
                 params: { pj }
             });
             setMessages(response.data);
@@ -50,7 +50,7 @@ const Messaging: React.FC<MessagingProps> = ({ pj }) => {
     };
 
     const connectWebSocket = () => {
-        const socket = new SockJS('https://eduplacement-4.onrender.com/ws'); //definire port
+        const socket = new SockJS('http://localhost:8080/ws'); //definire port
         const client = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 5000, //numar milisecunde
