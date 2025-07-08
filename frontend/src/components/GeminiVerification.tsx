@@ -17,8 +17,8 @@ const GeminiVerification: React.FC<GeminiVerificationProps> = ({ tableData }) =>
         setLoading(true);
 
         try {
-            //const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-            const ai = new GoogleGenAI({ apiKey: "AIzaSyAWddg76_jU-QscBqiZy12NNzUWU7hj6PQ" });
+            const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+            const ai = new GoogleGenAI({ apiKey: apiKey });
 
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash-preview-04-17",
